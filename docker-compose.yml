@@ -1,0 +1,16 @@
+services:
+  database:
+    image: postgres:16
+    container_name: ffi-postgres-db
+    restart: always
+    environment:
+      POSTGRES_USER: ffiContracting
+      POSTGRES_PASSWORD: Jffi2024
+      POSTGRES_DB: ffidb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" 
+
+volumes:
+  pgdata:
