@@ -42,7 +42,22 @@ services:
       --host 0.0.0.0
       --port 8000
       --reload
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend:/src          # mount entire project
+      - node_modules:/src/node_modules   # prevent node_modules overwrite
+
+    ports:
+      - "3000:3000"
+      - "9229:9229" # Debug Port
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
+      - NEXT_PRIVATE_WATCHPACK_POLLING=true
+
 
 
 volumes:
   pgdata:
+  node_modules:
