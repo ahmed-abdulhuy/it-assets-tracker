@@ -5,3 +5,7 @@ rest
 data-csv
 
 .env
+/__pycache__/
+*.pyc
+*.pyo
+*.pyd
