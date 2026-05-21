@@ -19,7 +19,6 @@ class EmployeeCreate(EmployeeBase):
     """Used when creating a new employee (POST)."""
     pass
 
-
 class EmployeeUpdate(BaseModel):
     """Used when updating an employee (PATCH). All fields optional."""
     first_name: Optional[str] = None

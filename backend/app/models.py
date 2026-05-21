@@ -1,5 +1,4 @@
-from sqlalchemy.orm import relationship
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import Column, DateTime, SQLModel, Field, Relationship, func
 from typing import Optional
 from datetime import datetime
 
@@ -13,8 +12,22 @@ class Employee(SQLModel, table=True):
     job_title: Optional[str] = None
     is_active: bool = True
 
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    created_at: datetime | None = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            nullable=False,
+        )
+    )
+
+    updated_at: datetime | None = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            onupdate=func.now(),
+            nullable=False,
+        )
+    )
 
     # One employee can have many assignment records (history)
     assignments: list["ComputerAssignment"] = Relationship(
@@ -32,8 +45,21 @@ class Computer(SQLModel, table=True):
 
     status: str = "available"
 
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    created_at: datetime | None = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            nullable=False,
+        )
+    )
+    updated_at: datetime | None = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            onupdate=func.now(),
+            nullable=False,
+        )
+    )
 
     # One computer can have many assignment records (history)
     assignments: list["ComputerAssignment"] = Relationship(

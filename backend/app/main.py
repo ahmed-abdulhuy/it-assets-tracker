@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-# from app.routers import employee, computer, assignment
+from app.routers import employee, computer, assignment
 from fastapi.middleware.cors import CORSMiddleware
-from app.database import initDB
+from app.database import init_db
  
 app = FastAPI(title="Asset Management API")
 
@@ -15,11 +15,11 @@ app.add_middleware(
 
 @app.on_event("startup") 
 def on_startup():
-    initDB()
+    init_db()
 
-# app.include_router(employee.router)
-# app.include_router(computer.router)
-# app.include_router(assignment.router)
+app.include_router(employee.router)
+app.include_router(computer.router)
+app.include_router(assignment.router)
 
  
 @app.get("/health")

@@ -17,12 +17,12 @@ print("Engine created successfully.", engine)
 SessionLocal = sessionmaker(engine, autocommit=False, autoflush=False)
 
 # Initialize database tables based on SQLModel definitions
-def initDB():
+def init_db():
     SQLModel.metadata.create_all(bind=engine)
     print("Database tables created successfully.")
 
 
-def getDB():
+def get_db():
     """Dependency to get database session"""
     with SessionLocal() as session:
         yield session
