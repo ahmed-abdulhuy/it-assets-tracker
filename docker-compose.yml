@@ -1,16 +1,48 @@
 services:
   database:
     image: postgres:16
-    container_name: ffi-postgres-db
+    container_name: ffi-inventory-db
     restart: always
     environment:
-      POSTGRES_USER: ffiContracting
-      POSTGRES_PASSWORD: Jffi2024
-      POSTGRES_DB: ffidb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      TZ: Asia/Riyadh
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # - /schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      # - /seed.sql:/docker-entrypoint-initdb.d/seed.sql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
     ports:
       - "5432:5432" 
+  
+  backend:
+    build: ./backend
+    env_file:
+      - .env
+    depends_on:
+      - database
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000" # HTTP Port
+      - "5678:5678" # Debug Port
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: >
+      python -Xfrozen_modules=off -m debugpy
+      --listen 0.0.0.0:5678
+      -m uvicorn app.main:app 
+      --host 0.0.0.0
+      --port 8000
+      --reload
+
 
 volumes:
   pgdata:
