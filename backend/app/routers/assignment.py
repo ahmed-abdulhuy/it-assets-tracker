@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app import schemas
 from app.crud import assignment as crud_assignment
@@ -19,3 +19,15 @@ def return_computer(
     db: Session = Depends(get_db)
 ):
     return crud_assignment.return_computer(db, assignment_id, payload.returned_at)
+
+@router.get("/active/{computer_id}", response_model=schemas.AssignmentOut)
+def get_active_assignment(computer_id: int, db: Session = Depends(get_db)):
+    assignment = crud_assignment.get_active_assignment(db, computer_id)
+    if not assignment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No active assignment found for computer {computer_id}."
+        )
+    return assignment
+
+
