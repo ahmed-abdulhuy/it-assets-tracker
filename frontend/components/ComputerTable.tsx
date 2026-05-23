@@ -31,7 +31,7 @@ export function ComputerTable() {
   const [deleting, setDeleting] = useState<Computer | null>(null)
 
   const updateMutation = useMutation({
-    mutationFn: (data: { id: number; payload: any }) => computerApi.update(data.id, data.payload),
+    mutationFn: (data: { id: number; payload: Partial<Computer> }) => computerApi.update(data.id, data.payload as Parameters<typeof computerApi.update>[1]),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['computers'] })
       toast('Computer updated.', 'success')
@@ -96,7 +96,9 @@ export function ComputerTable() {
           initial={editing}
           loading={updateMutation.isPending}
           onClose={() => setEditing(null)}
-          onSubmit={payload => updateMutation.mutateAsync({ id: editing.computer_id, payload })}
+          onSubmit={async payload => {
+            await updateMutation.mutateAsync({ id: editing.computer_id, payload })
+          }}
         />
       )}
 

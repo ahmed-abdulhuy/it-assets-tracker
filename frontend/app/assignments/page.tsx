@@ -41,7 +41,9 @@ function PageContent() {
         <AssignmentForm
           loading={createMutation.isPending}
           onClose={() => setShowCreate(false)}
-          onSubmit={data => createMutation.mutateAsync(data)}
+          onSubmit={async data => {
+            await createMutation.mutateAsync(data)
+          }}
         />
       )}
     </>

@@ -40,7 +40,9 @@ function PageContent() {
         <ComputerForm
           loading={createMutation.isPending}
           onClose={() => setShowCreate(false)}
-          onSubmit={data => createMutation.mutateAsync(data as any)}
+          onSubmit={async data => {
+            await createMutation.mutateAsync(data as Parameters<typeof createMutation.mutateAsync>[0])
+          }}
         />
       )}
     </>
