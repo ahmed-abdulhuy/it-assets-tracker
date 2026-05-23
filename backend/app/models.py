@@ -74,7 +74,14 @@ class ComputerAssignment(SQLModel, table=True):
     computer_id: int = Field(foreign_key="computers.computer_id")
     employee_id: int = Field(foreign_key="employees.employee_id")
 
-    assigned_at: datetime | None = None
+    assigned_at: datetime | None = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            server_default=func.now(),
+            nullable=False,
+        )
+    )
+
     returned_at: Optional[datetime] = None
     assigned_by: Optional[str] = None
 

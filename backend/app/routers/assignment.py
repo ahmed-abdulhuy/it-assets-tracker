@@ -12,6 +12,11 @@ def assign_computer(assignment: schemas.AssignmentCreate, db: Session = Depends(
     return crud_assignment.assign_computer(db, assignment)
 
 
+@router.get("/", response_model=list[schemas.AssignmentOutDetailed])
+def get_assignments(db: Session = Depends(get_db)):
+    return crud_assignment.get_assignments(db)
+
+
 @router.patch("/{assignment_id}/return", response_model=schemas.AssignmentOut)
 def return_computer(
     assignment_id: int,
@@ -19,6 +24,7 @@ def return_computer(
     db: Session = Depends(get_db)
 ):
     return crud_assignment.return_computer(db, assignment_id, payload.returned_at)
+
 
 @router.get("/active/{computer_id}", response_model=schemas.AssignmentOut)
 def get_active_assignment(computer_id: int, db: Session = Depends(get_db)):

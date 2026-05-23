@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from app import models, schemas
+from sqlalchemy.orm import joinedload
 
 
 def get_active_assignment(db: Session, computer_id: int):
@@ -12,6 +13,9 @@ def get_active_assignment(db: Session, computer_id: int):
         models.ComputerAssignment.returned_at == None  # noqa: E711
     ).first()
 
+
+def get_assignments(db: Session):
+    return db.query(models.ComputerAssignment).all()
 
 def assign_computer(db: Session, assignment: schemas.AssignmentCreate):
     # 1. Verify the computer exists and is available
