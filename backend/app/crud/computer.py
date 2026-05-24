@@ -36,6 +36,9 @@ def delete_computer(db: Session, computer_id: int):
     if not db_computer:
         return None
 
-    db.delete(db_computer)
+    db_computer.status = "decommissioned"
+    db.add(db_computer)
     db.commit()
+    db.refresh(db_computer)
+    
     return db_computer 

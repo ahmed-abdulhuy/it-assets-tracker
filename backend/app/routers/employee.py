@@ -66,5 +66,10 @@ def delete_employee(employee_id: int, db: Session = Depends(get_db)):
     if not db_employee:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
 
-    deleted_employee = crud_employee.delete_employee(db, employee_id)
-    return deleted_employee
+    db_employee.is_active = False
+
+    db.add(db_employee)
+    db.commit()
+    db.refresh(db_employee)
+
+    return db_employee
