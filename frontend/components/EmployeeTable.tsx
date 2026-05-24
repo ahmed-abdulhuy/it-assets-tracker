@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { employeeApi } from '@/lib/api'
 import { Employee, EmployeeUpdate } from '@/lib/types'
 import { EmployeeForm } from '@/components/EmployeeForm'
+import { EmployeeHistoryDrawer } from '@/components/EmployeeHistoryDrawer'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { useToast } from '@/components/Toast'
 
@@ -19,6 +20,7 @@ export function EmployeeTable() {
 
   const [editing, setEditing]   = useState<Employee | null>(null)
   const [deleting, setDeleting] = useState<Employee | null>(null)
+  const [viewingHistory, setViewingHistory] = useState<Employee | null>(null)
 
   const updateMutation = useMutation({
     mutationFn: (data: { id: number; payload: EmployeeUpdate }) => employeeApi.update(data.id, data.payload),
@@ -62,7 +64,10 @@ export function EmployeeTable() {
             </thead>
             <tbody>
               {employees.map(emp => (
-                <tr key={emp.employee_id}>
+                <tr key={emp.employee_id}
+                  className="clickable"
+                  onClick={() => setViewingHistory(emp)}
+                >
                   <td className="td-mono">{emp.employee_id}</td>
                   <td><strong>{emp.first_name} {emp.last_name}</strong></td>
                   <td className="td-mono">{emp.email ?? '—'}</td>
@@ -84,6 +89,16 @@ export function EmployeeTable() {
           </table>
         )}
       </div>
+      <p style={{ marginTop: 10, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', letterSpacing: '0.06em' }}>
+        CLICK A ROW TO VIEW ASSET HISTORY
+      </p>
+ 
+      {viewingHistory && (
+        <EmployeeHistoryDrawer
+          employee={viewingHistory}
+          onClose={() => setViewingHistory(null)}
+        />
+      )}
 
       {editing && (
         <EmployeeForm

@@ -75,6 +75,43 @@ def assign_computer(db: Session, assignment: schemas.AssignmentCreate):
     return db_assignment
 
 
+def get_computer_history(db: Session, computer_id: int):
+    """Return all assignment records for a computer, newest first."""
+    computer = db.query(models.Computer).filter(
+        models.Computer.computer_id == computer_id
+    ).first()
+    if not computer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Computer {computer_id} not found."
+        )
+    return (
+        db.query(models.ComputerAssignment)
+        .filter(models.ComputerAssignment.computer_id == computer_id)
+        .order_by(models.ComputerAssignment.assigned_at.desc())
+        .all()
+    )
+ 
+ 
+def get_employee_history(db: Session, employee_id: int):
+    """Return all assignment records for an employee, newest first."""
+    employee = db.query(models.Employee).filter(
+        models.Employee.employee_id == employee_id
+    ).first()
+    if not employee:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Employee {employee_id} not found."
+        )
+    return (
+        db.query(models.ComputerAssignment)
+        .filter(models.ComputerAssignment.employee_id == employee_id)
+        .order_by(models.ComputerAssignment.assigned_at.desc())
+        .all()
+    )
+
+
+
 def return_computer(db: Session, assignment_id: int, returned_at: datetime = None):
     # 1. Find the assignment
     db_assignment = db.query(models.ComputerAssignment).filter(

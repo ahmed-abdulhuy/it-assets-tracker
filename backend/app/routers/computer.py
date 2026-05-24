@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app import schemas
 from app.crud import computer as crud_computer
+from app.crud import assignment as crud_assignment
 from app.database import get_db
+from typing import List
 
 router = APIRouter(prefix="/computers", tags=["Computers"])
 
@@ -23,6 +25,11 @@ def read_computer(computer_id: int, db: Session = Depends(get_db)):
     if db_computer is None:
         raise HTTPException(status_code=404, detail="Computer not found")
     return db_computer
+
+
+@router.get("/{computer_id}/history", response_model=List[schemas.ComputerHistoryEntry])
+def get_computer_history(computer_id: int, db: Session = Depends(get_db)):
+    return crud_assignment.get_computer_history(db, computer_id)
 
 
 @router.patch("/{computer_id}", response_model=schemas.ComputerOut)

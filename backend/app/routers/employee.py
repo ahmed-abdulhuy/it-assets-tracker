@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app import schemas
 from app.crud import employee as crud_employee
+from app.crud import assignment as crud_assignment
 from app.database import get_db
+from typing import List
 
 router = APIRouter(prefix="/employees", tags=["Employees"])
 
@@ -39,6 +41,11 @@ def get_employee_by_email(email: str, db: Session = Depends(get_db)):
     if not db_employee:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
     return db_employee
+
+
+@router.get("/{employee_id}/history", response_model=List[schemas.EmployeeHistoryEntry])
+def get_employee_history(employee_id: int, db: Session = Depends(get_db)):
+    return crud_assignment.get_employee_history(db, employee_id)
 
 
 @router.patch("/{employee_id}", response_model=schemas.EmployeeOut)

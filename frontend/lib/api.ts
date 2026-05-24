@@ -1,7 +1,8 @@
 import {
   Employee, EmployeeCreate, EmployeeUpdate,
   Computer, ComputerCreate, ComputerUpdate,
-  Assignment, AssignmentDetailed, AssignmentCreate
+  Assignment, AssignmentDetailed, AssignmentCreate,
+  ComputerHistoryEntry, EmployeeHistoryEntry
 } from './types'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -59,4 +60,14 @@ export const assignmentApi = {
   return: (assignmentId: number) => request<Assignment>(`/assignments/${assignmentId}/return`, {
     method: 'PATCH', body: JSON.stringify({})
   }),
+}
+
+// =====================================================
+// History
+// =====================================================
+export const historyApi = {
+  forComputer: (computerId: number) =>
+    request<ComputerHistoryEntry[]>(`/computers/${computerId}/history`),
+  forEmployee: (employeeId: number) =>
+    request<EmployeeHistoryEntry[]>(`/employees/${employeeId}/history`),
 }

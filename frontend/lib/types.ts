@@ -72,3 +72,19 @@ export interface AssignmentCreate {
   employee_id: number
   assigned_by?: string
 }
+
+export interface ComputerHistoryEntry {
+  assignment_id: number
+  employee: Employee
+  assigned_at: string
+  returned_at: string | null
+  assigned_by: string | null
+}
+ 
+export interface EmployeeHistoryEntry {
+  assignment_id: number
+  computer: Computer
+  assigned_at: string
+  returned_at: string | null
+  assigned_by: string | null
+}

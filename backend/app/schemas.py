@@ -109,3 +109,31 @@ class AssignmentOutDetailed(AssignmentOut):
 
     class Config:
         from_attributes = True
+
+
+# =====================================================
+# History Schemas
+# =====================================================
+ 
+class ComputerHistoryEntry(BaseModel):
+    """One entry in a computer's assignment history."""
+    assignment_id: int
+    employee: EmployeeOut
+    assigned_at: datetime
+    returned_at: Optional[datetime] = None
+    assigned_by: Optional[str] = None
+ 
+    class Config:
+        from_attributes = True
+ 
+ 
+class EmployeeHistoryEntry(BaseModel):
+    """One entry in an employee's assignment history."""
+    assignment_id: int
+    computer: ComputerOut
+    assigned_at: datetime
+    returned_at: Optional[datetime] = None
+    assigned_by: Optional[str] = None
+ 
+    class Config:
+        from_attributes = True

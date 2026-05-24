@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { computerApi } from '@/lib/api'
 import { Computer } from '@/lib/types'
 import { ComputerForm } from '@/components/ComputerForm'
+import { ComputerHistoryDrawer } from '@/components/ComputerHistoryDrawer'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { useToast } from '@/components/Toast'
 
@@ -29,6 +30,7 @@ export function ComputerTable() {
 
   const [editing, setEditing]   = useState<Computer | null>(null)
   const [deleting, setDeleting] = useState<Computer | null>(null)
+  const [viewingHistory, setViewingHistory] = useState<Computer | null>(null)
 
   const updateMutation = useMutation({
     mutationFn: (data: { id: number; payload: Partial<Computer> }) => computerApi.update(data.id, data.payload as Parameters<typeof computerApi.update>[1]),
@@ -72,7 +74,10 @@ export function ComputerTable() {
             </thead>
             <tbody>
               {computers.map(c => (
-                <tr key={c.computer_id}>
+                <tr key={c.computer_id}
+                  className="clickable"
+                  onClick={() => setViewingHistory(c)}
+                >
                   <td className="td-mono">{c.computer_id}</td>
                   <td><strong>{c.device_type}</strong></td>
                   <td>{c.model ?? '—'}</td>
@@ -80,8 +85,8 @@ export function ComputerTable() {
                   <td>{statusBadge(c.status)}</td>
                   <td>
                     <div className="td-actions">
-                      <button className="btn btn-ghost btn-sm" onClick={() => setEditing(c)}>Edit</button>
-                      <button className="btn btn-danger btn-sm" onClick={() => setDeleting(c)}>Delete</button>
+                      <button className="btn btn-ghost btn-sm" onClick={(e) => {setEditing(c); e.stopPropagation()}}>Edit</button>
+                      <button className="btn btn-danger btn-sm" onClick={(e) => {setDeleting(c); e.stopPropagation()}}>Delete</button>
                     </div>
                   </td>
                 </tr>
@@ -90,6 +95,15 @@ export function ComputerTable() {
           </table>
         )}
       </div>
+      <p style={{ marginTop: 10, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', letterSpacing: '0.06em' }}>
+        CLICK A ROW TO VIEW ASSIGNMENT HISTORY
+      </p>
+      {viewingHistory && (
+        <ComputerHistoryDrawer
+          computer={viewingHistory}
+          onClose={() => setViewingHistory(null)}
+        />
+      )}
 
       {editing && (
         <ComputerForm
