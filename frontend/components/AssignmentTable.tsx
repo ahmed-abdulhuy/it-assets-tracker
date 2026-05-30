@@ -28,8 +28,8 @@ export function AssignmentTable() {
     mutationFn: (id: number) => assignmentApi.return(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['assignments'] })
-      qc.invalidateQueries({ queryKey: ['computers'] })
-      toast('Computer returned successfully.', 'success')
+      qc.invalidateQueries({ queryKey: ['devices'] })
+      toast('Device returned successfully.', 'success')
       setReturning(null)
     },
     onError: (e: Error) => toast(e.message, 'error'),
@@ -56,7 +56,7 @@ export function AssignmentTable() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Computer</th>
+                  <th>Device</th>
                   <th>Employee</th>
                   <th>Assigned By</th>
                   <th>Assigned At</th>
@@ -68,8 +68,8 @@ export function AssignmentTable() {
                   <tr key={a.assignment_id}>
                     <td className="td-mono">{a.assignment_id}</td>
                     <td>
-                      <strong>{a.computer.device_type}</strong>
-                      {a.computer.model && <div style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>{a.computer.model}</div>}
+                      <strong>{a.device.device_type}</strong>
+                      {a.device.model && <div style={{ fontSize: 11, color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>{a.device.model}</div>}
                     </td>
                     <td>
                       <strong>{a.employee.first_name} {a.employee.last_name}</strong>
@@ -103,7 +103,7 @@ export function AssignmentTable() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Computer</th>
+                  <th>Device</th>
                   <th>Employee</th>
                   <th>Assigned At</th>
                   <th>Returned At</th>
@@ -113,7 +113,7 @@ export function AssignmentTable() {
                 {returned.map(a => (
                   <tr key={a.assignment_id} style={{ opacity: 0.6 }}>
                     <td className="td-mono">{a.assignment_id}</td>
-                    <td>{a.computer.device_type}</td>
+                    <td>{a.device.device_type}</td>
                     <td>{a.employee.first_name} {a.employee.last_name}</td>
                     <td className="td-mono">{formatDate(a.assigned_at)}</td>
                     <td className="td-mono">
@@ -129,10 +129,10 @@ export function AssignmentTable() {
 
       {returning && (
         <ConfirmDialog
-          title="Return Computer"
+          title="Return Device"
           message={
             <>
-              Mark <strong>{returning.computer.device_type}</strong> as returned from{' '}
+              Mark <strong>{returning.device.device_type}</strong> as returned from{' '}
               <strong>{returning.employee.first_name} {returning.employee.last_name}</strong>?
             </>
           }

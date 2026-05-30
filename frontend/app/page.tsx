@@ -3,10 +3,10 @@
 import { useMemo } from 'react'
 import { useQueries } from '@tanstack/react-query'
 import Link from 'next/link'
-import { computerApi, employeeApi, assignmentApi, statusApi } from '@/lib/api'
+import { deviceApi, employeeApi, assignmentApi, statusApi } from '@/lib/api'
 import { ToastProvider } from '@/components/Toast'
 import {
-  Computer, Employee, AssignmentDetailed, DeviceStatus
+  Device, Employee, AssignmentDetailed, DeviceStatus
 } from '@/lib/types'
 
 // ─────────────────────────────────────────────────────────────
@@ -43,16 +43,16 @@ function StatCard({
 }
 
 function UtilizationRing({
-  computers, statuses,
+  devices, statuses,
 }: {
-  computers: Computer[]; statuses: DeviceStatus[]
+  devices: Device[]; statuses: DeviceStatus[]
 }) {
-  const total      = computers.length
-  const assigned   = computers.filter(c => c.status === 'assigned').length
+  const total      = devices.length
+  const assigned   = devices.filter(c => c.status === 'assigned').length
   const utilPct    = total > 0 ? Math.round((assigned / total) * 100) : 0
   const statusCounts = statuses.map(status => ({
     ...status,
-    count: computers.filter(
+    count: devices.filter(
       c => c.status === status.status
     ).length
   }))
@@ -140,14 +140,14 @@ function UtilizationRing({
 }
 
 function StatusBreakdown({
-  computers, statuses,
+  devices, statuses,
 }: {
-  computers: Computer[]; statuses: DeviceStatus[]
+  devices: Device[]; statuses: DeviceStatus[]
 }) {
-  const total = computers.length || 1
+  const total = devices.length || 1
   const items = statuses.map(s => ({
     ...s,
-    count: computers.filter(c => c.status === s.status).length,
+    count: devices.filter(c => c.status === s.status).length,
   })).sort((a, b) => b.count - a.count)
 
   return (
@@ -194,7 +194,7 @@ function ActivityFeed({
       events.push({
         key:   `assign-${a.assignment_id}`,
         type:  'assigned',
-        title: <><strong>{a.computer.device_type}</strong> → {a.employee.first_name} {a.employee.last_name}</>,
+        title: <><strong>{a.device.device_type}</strong> → {a.employee.first_name} {a.employee.last_name}</>,
         sub:   a.assigned_by ? `by ${a.assigned_by}` : 'Assignment',
         time:  a.assigned_at,
         color: '#f0a500',
@@ -204,7 +204,7 @@ function ActivityFeed({
         events.push({
           key:   `return-${a.assignment_id}`,
           type:  'returned',
-          title: <><strong>{a.computer.device_type}</strong> returned by {a.employee.first_name} {a.employee.last_name}</>,
+          title: <><strong>{a.device.device_type}</strong> returned by {a.employee.first_name} {a.employee.last_name}</>,
           sub:    'Return',
           time:  a.returned_at,
           color: '#3ecf6e',
@@ -243,8 +243,8 @@ function ActivityFeed({
   )
 }
 
-function AttentionPanel({ computers, statuses }: { computers: Computer[]; statuses: DeviceStatus[] }) {
-  const needsAttention = computers.filter(c =>
+function AttentionPanel({ devices, statuses }: { devices: Device[]; statuses: DeviceStatus[] }) {
+  const needsAttention = devices.filter(c =>
     c.status === 'maintenance' || c.status === 'lost'
   )
 
@@ -264,10 +264,10 @@ function AttentionPanel({ computers, statuses }: { computers: Computer[]; status
       {needsAttention.map(c => {
         const meta = statusMeta(c.status)
         return (
-          <div className="attention-item" key={c.computer_id}>
+          <div className="attention-item" key={c.device_id}>
             <div className="attention-item-left">
               <div className="attention-item-name">{c.device_type}</div>
-              <div className="attention-item-sub">{c.model ?? 'No model'} · ID #{c.computer_id}</div>
+              <div className="attention-item-sub">{c.model ?? 'No model'} · ID #{c.device_id}</div>
             </div>
             {meta && (
               <span className="badge" style={{
@@ -335,7 +335,7 @@ function UnassignedEmployees({
 function DashboardContent() {
   const results = useQueries({
     queries: [
-      { queryKey: ['computers'],   queryFn: computerApi.list   },
+      { queryKey: ['devices'],   queryFn: deviceApi.list   },
       { queryKey: ['employees'],   queryFn: employeeApi.list   },
       { queryKey: ['assignments'], queryFn: assignmentApi.list },
       { queryKey: ['statuses'],    queryFn: statusApi.list, staleTime: Infinity },
@@ -343,7 +343,7 @@ function DashboardContent() {
   })
 
   const [
-    { data: computers,   isLoading: lc },
+    { data: devices,   isLoading: lc },
     { data: employees,   isLoading: le },
     { data: assignments, isLoading: la },
     { data: statuses,    isLoading: ls },
@@ -354,18 +354,18 @@ function DashboardContent() {
 
   // ── Derived stats ──────────────────────────────────────────
   const stats = useMemo(() => {
-    if (!computers || !employees || !assignments || !statuses) return null
+    if (!devices || !employees || !assignments || !statuses) return null
 
     const activeEmployees   = employees.filter(e => e.is_active)
     const activeAssignments = assignments.filter(a => !a.returned_at)
     const assignedEmpIds    = new Set(activeAssignments.map(a => a.employee_id))
 
-    const totalDevices      = computers.length
-    const availableDevices  = computers.filter(c => c.status === 'available').length
-    const assignedDevices   = computers.filter(c => c.status === 'assigned').length
-    const maintenanceDevices = computers.filter(c => c.status === 'maintenance').length
-    const lostDevices       = computers.filter(c => c.status === 'lost').length
-    const retiredDevices    = computers.filter(c => c.status === 'retired').length
+    const totalDevices      = devices.length
+    const availableDevices  = devices.filter(c => c.status === 'available').length
+    const assignedDevices   = devices.filter(c => c.status === 'assigned').length
+    const maintenanceDevices = devices.filter(c => c.status === 'maintenance').length
+    const lostDevices       = devices.filter(c => c.status === 'lost').length
+    const retiredDevices    = devices.filter(c => c.status === 'retired').length
     const utilization       = totalDevices > 0 ? Math.round((assignedDevices / totalDevices) * 100) : 0
     const coveredEmployees  = activeEmployees.filter(e => assignedEmpIds.has(e.employee_id)).length
     const coverageRate      = activeEmployees.length > 0
@@ -377,7 +377,7 @@ function DashboardContent() {
       utilization, activeEmployees: activeEmployees.length,
       coveredEmployees, coverageRate,
     }
-  }, [computers, employees, assignments, statuses])
+  }, [devices, employees, assignments, statuses])
 
   if (isLoading) return (
     <div className="state-loading" style={{ minHeight: 300 }}>
@@ -437,11 +437,11 @@ function DashboardContent() {
       <div className="dash-section dash-grid dash-grid-2">
         <div className="dash-panel">
           <div className="dash-panel-label">Fleet Utilization</div>
-          <UtilizationRing computers={computers!} statuses={statuses!} />
+          <UtilizationRing devices={devices!} statuses={statuses!} />
         </div>
         <div className="dash-panel">
           <div className="dash-panel-label">Status Breakdown</div>
-          <StatusBreakdown computers={computers!} statuses={statuses!} />
+          <StatusBreakdown devices={devices!} statuses={statuses!} />
         </div>
       </div>
 
@@ -491,7 +491,7 @@ function DashboardContent() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
                 { href: '/employees',   label: '+ Add Employee',  sub: `${stats.activeEmployees} active` },
-                { href: '/computers',   label: '+ Add Computer',  sub: `${stats.totalDevices} total` },
+                { href: '/devices',   label: '+ Add Device',  sub: `${stats.totalDevices} total` },
                 { href: '/assignments', label: '+ Assign Device', sub: `${stats.assignedDevices} active` },
               ].map(item => (
                 <Link
@@ -533,7 +533,7 @@ function DashboardContent() {
               </span>
             )}
           </div>
-          <AttentionPanel computers={computers!} statuses={statuses!} />
+          <AttentionPanel devices={devices!} statuses={statuses!} />
         </div>
 
         <div className="dash-panel">

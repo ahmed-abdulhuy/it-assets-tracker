@@ -43,15 +43,15 @@ INSERT INTO device_status_transitions
     ('lost',        'available',   'Mark as Found',    'Device has been recovered and is ready for assignment.',                   FALSE),
     ('lost',        'retired',     'Retire Device',    'Device is unrecoverable and will be permanently retired.',                FALSE);
 
--- ── 5. Add CHECK constraint to computers.status ───
-ALTER TABLE computers
-    ADD CONSTRAINT chk_computers_status
+-- ── 5. Add CHECK constraint to devices.status ───
+ALTER TABLE devices
+    ADD CONSTRAINT chk_devices_status
     CHECK (status IN ('available','assigned','maintenance','retired','lost'));
 
 -- ── 6. Status change audit log ───────────────────
 CREATE TABLE device_status_log (
     log_id       SERIAL PRIMARY KEY,
-    computer_id  INTEGER NOT NULL REFERENCES computers(computer_id) ON DELETE CASCADE,
+    device_id  INTEGER NOT NULL REFERENCES devices(device_id) ON DELETE CASCADE,
     from_status  VARCHAR(50) REFERENCES device_statuses(status),
     to_status    VARCHAR(50) NOT NULL REFERENCES device_statuses(status),
     changed_by   VARCHAR(100),
@@ -59,4 +59,4 @@ CREATE TABLE device_status_log (
     changed_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_status_log_computer ON device_status_log(computer_id);
+CREATE INDEX idx_status_log_device ON device_status_log(device_id);

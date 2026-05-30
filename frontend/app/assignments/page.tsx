@@ -16,8 +16,8 @@ function PageContent() {
     mutationFn: assignmentApi.create,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['assignments'] })
-      qc.invalidateQueries({ queryKey: ['computers'] })
-      toast('Computer assigned.', 'success')
+      qc.invalidateQueries({ queryKey: ['devices'] })
+      toast('Device assigned.', 'success')
       setShowCreate(false)
     },
     onError: (e: Error) => toast(e.message, 'error'),
@@ -31,7 +31,7 @@ function PageContent() {
           <strong>Assignments</strong>
         </div>
         <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
-          + Assign Computer
+          + Assign Device
         </button>
       </div>
 

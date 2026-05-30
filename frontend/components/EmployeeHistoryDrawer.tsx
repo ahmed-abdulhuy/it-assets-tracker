@@ -87,19 +87,19 @@ export function EmployeeHistoryDrawer({ employee, onClose }: Props) {
                     </div>
                     <div className={`timeline-card ${isActive ? 'active' : ''}`}>
                       <div className="timeline-card-title">
-                        {entry.computer.device_type}
+                        {entry.device.device_type}
                         {isActive && (
                           <span className="badge badge-amber" style={{ marginLeft: 8, verticalAlign: 'middle' }}>
                             Active
                           </span>
                         )}
                       </div>
-                      {entry.computer.model && (
-                        <div className="timeline-card-sub">{entry.computer.model}</div>
+                      {entry.device.model && (
+                        <div className="timeline-card-sub">{entry.device.model}</div>
                       )}
-                      {entry.computer.specs && (
+                      {entry.device.specs && (
                         <div className="timeline-card-sub" style={{ fontFamily: 'var(--font-mono)', fontSize: 11 }}>
-                          {entry.computer.specs}
+                          {entry.device.specs}
                         </div>
                       )}
                       <div className="timeline-card-dates">

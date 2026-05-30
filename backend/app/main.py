@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import employee, computer, assignment
+from app.routers import employee, device, assignment
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_db
 from app.routers import status
@@ -19,7 +19,7 @@ def on_startup():
     init_db()
 
 app.include_router(employee.router)
-app.include_router(computer.router)
+app.include_router(device.router)
 app.include_router(assignment.router)
 app.include_router(status.router)
 

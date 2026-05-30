@@ -6,33 +6,33 @@ from app import models, schemas
 from sqlalchemy.orm import joinedload
 
 
-def get_active_assignment(db: Session, computer_id: int):
-    """Return the currently active assignment for a computer, or None."""
-    return db.query(models.ComputerAssignment).filter(
-        models.ComputerAssignment.computer_id == computer_id,
-        models.ComputerAssignment.returned_at == None  # noqa: E711
+def get_active_assignment(db: Session, device_id: int):
+    """Return the currently active assignment for a device, or None."""
+    return db.query(models.DeviceAssignment).filter(
+        models.DeviceAssignment.device_id == device_id,
+        models.DeviceAssignment.returned_at == None  # noqa: E711
     ).first()
 
 
 def get_assignments(db: Session):
-    return db.query(models.ComputerAssignment).all()
+    return db.query(models.DeviceAssignment).all()
 
-def assign_computer(db: Session, assignment: schemas.AssignmentCreate):
-    # 1. Verify the computer exists and is available
-    computer = db.query(models.Computer).filter(
-        models.Computer.computer_id == assignment.computer_id
+def assign_device(db: Session, assignment: schemas.AssignmentCreate):
+    # 1. Verify the device exists and is available
+    device = db.query(models.Device).filter(
+        models.Device.device_id == assignment.device_id
     ).first()
 
-    if not computer:
+    if not device:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Computer {assignment.computer_id} not found."
+            detail=f"Device {assignment.device_id} not found."
         )
 
-    if computer.status != "available":
+    if device.status != "available":
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Computer {assignment.computer_id} is not available (current status: '{computer.status}')."
+            detail=f"Device {assignment.device_id} is not available (current status: '{device.status}')."
         )
 
     # 2. Verify the employee exists and is active
@@ -53,10 +53,10 @@ def assign_computer(db: Session, assignment: schemas.AssignmentCreate):
         )
 
     # 3. Create assignment record
-    db_assignment = models.ComputerAssignment(**assignment.model_dump())
+    db_assignment = models.DeviceAssignment(**assignment.model_dump())
 
-    # 4. Mark computer as assigned
-    computer.status = "assigned"
+    # 4. Mark device as assigned
+    device.status = "assigned"
 
     db.add(db_assignment)
 
@@ -68,27 +68,27 @@ def assign_computer(db: Session, assignment: schemas.AssignmentCreate):
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Computer {assignment.computer_id} already has an active assignment."
+            detail=f"Device {assignment.device_id} already has an active assignment."
         )
 
     db.refresh(db_assignment)
     return db_assignment
 
 
-def get_computer_history(db: Session, computer_id: int):
-    """Return all assignment records for a computer, newest first."""
-    computer = db.query(models.Computer).filter(
-        models.Computer.computer_id == computer_id
+def get_device_history(db: Session, device_id: int):
+    """Return all assignment records for a device, newest first."""
+    device = db.query(models.Device).filter(
+        models.Device.device_id == device_id
     ).first()
-    if not computer:
+    if not device:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Computer {computer_id} not found."
+            detail=f"Device {device_id} not found."
         )
     return (
-        db.query(models.ComputerAssignment)
-        .filter(models.ComputerAssignment.computer_id == computer_id)
-        .order_by(models.ComputerAssignment.assigned_at.desc())
+        db.query(models.DeviceAssignment)
+        .filter(models.DeviceAssignment.device_id == device_id)
+        .order_by(models.DeviceAssignment.assigned_at.desc())
         .all()
     )
  
@@ -104,18 +104,18 @@ def get_employee_history(db: Session, employee_id: int):
             detail=f"Employee {employee_id} not found."
         )
     return (
-        db.query(models.ComputerAssignment)
-        .filter(models.ComputerAssignment.employee_id == employee_id)
-        .order_by(models.ComputerAssignment.assigned_at.desc())
+        db.query(models.DeviceAssignment)
+        .filter(models.DeviceAssignment.employee_id == employee_id)
+        .order_by(models.DeviceAssignment.assigned_at.desc())
         .all()
     )
 
 
 
-def return_computer(db: Session, assignment_id: int, returned_at: datetime = None):
+def return_device(db: Session, assignment_id: int, returned_at: datetime = None):
     # 1. Find the assignment
-    db_assignment = db.query(models.ComputerAssignment).filter(
-        models.ComputerAssignment.assignment_id == assignment_id
+    db_assignment = db.query(models.DeviceAssignment).filter(
+        models.DeviceAssignment.assignment_id == assignment_id
     ).first()
 
     if not db_assignment:
@@ -134,13 +134,13 @@ def return_computer(db: Session, assignment_id: int, returned_at: datetime = Non
     # 3. Set returned_at (use provided time or now)
     db_assignment.returned_at = returned_at or datetime.now(timezone.utc)
 
-    # 4. Mark computer as available again
-    computer = db.query(models.Computer).filter(
-        models.Computer.computer_id == db_assignment.computer_id
+    # 4. Mark device as available again
+    device = db.query(models.Device).filter(
+        models.Device.device_id == db_assignment.device_id
     ).first()
 
-    if computer:
-        computer.status = "available"
+    if device:
+        device.status = "available"
 
     db.commit()
     db.refresh(db_assignment)

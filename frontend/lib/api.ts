@@ -1,8 +1,8 @@
 import {
   Employee, EmployeeCreate, EmployeeUpdate,
-  Computer, ComputerCreate, ComputerUpdate,
+  Device, DeviceCreate, DeviceUpdate,
   Assignment, AssignmentDetailed, AssignmentCreate,
-  ComputerHistoryEntry, EmployeeHistoryEntry,
+  DeviceHistoryEntry, EmployeeHistoryEntry,
   StatusChangeRequest, DeviceStatusLogEntry,
   DeviceStatus, DeviceStatusTransition,
 } from './types'
@@ -37,21 +37,21 @@ export const employeeApi = {
 }
 
 // =====================================================
-// Computers
+// Devices
 // =====================================================
-export const computerApi = {
-  list: () => request<Computer[]>('/computers/'),
-  get: (id: number) => request<Computer>(`/computers/${id}`),
-  create: (data: ComputerCreate) => request<Computer>('/computers/', {
+export const deviceApi = {
+  list: () => request<Device[]>('/devices/'),
+  get: (id: number) => request<Device>(`/devices/${id}`),
+  create: (data: DeviceCreate) => request<Device>('/devices/', {
     method: 'POST', body: JSON.stringify(data)
   }),
-  update: (id: number, data: ComputerUpdate) => request<Computer>(`/computers/${id}`, {
+  update: (id: number, data: DeviceUpdate) => request<Device>(`/devices/${id}`, {
     method: 'PATCH', body: JSON.stringify(data)
   }),
-  remove: (id: number) => request<void>(`/computers/${id}`, { method: 'DELETE' }),
+  remove: (id: number) => request<void>(`/devices/${id}`, { method: 'DELETE' }),
   changeStatus: (id: number, data: StatusChangeRequest) =>
-    request<Computer>(`/computers/${id}/status`, { method: 'POST', body: JSON.stringify(data) }),
-  statusLog: (id: number) => request<DeviceStatusLogEntry[]>(`/computers/${id}/status-log`),
+    request<Device>(`/devices/${id}/status`, { method: 'POST', body: JSON.stringify(data) }),
+  statusLog: (id: number) => request<DeviceStatusLogEntry[]>(`/devices/${id}/status-log`),
 
 }
 
@@ -72,8 +72,8 @@ export const assignmentApi = {
 // History
 // =====================================================
 export const historyApi = {
-  forComputer: (computerId: number) =>
-    request<ComputerHistoryEntry[]>(`/computers/${computerId}/history`),
+  forDevice: (deviceId: number) =>
+    request<DeviceHistoryEntry[]>(`/devices/${deviceId}/history`),
   forEmployee: (employeeId: number) =>
     request<EmployeeHistoryEntry[]>(`/employees/${employeeId}/history`),
 }

@@ -16,20 +16,20 @@ def get_transitions_from(db: Session, from_status: str):
     )
 
 
-def change_computer_status(db: Session, computer_id: int, payload: schemas.StatusChangeRequest):
-    # 1. Load computer
-    computer = db.query(models.Computer).filter(
-        models.Computer.computer_id == computer_id
+def change_device_status(db: Session, device_id: int, payload: schemas.StatusChangeRequest):
+    # 1. Load device
+    device = db.query(models.Device).filter(
+        models.Device.device_id == device_id
     ).first()
-    if not computer:
-        raise HTTPException(http_status.HTTP_404_NOT_FOUND, detail=f"Computer {computer_id} not found.")
+    if not device:
+        raise HTTPException(http_status.HTTP_404_NOT_FOUND, detail=f"Device {device_id} not found.")
 
-    current = computer.status
+    current = device.status
     target  = payload.to_status
 
     if current == target:
         raise HTTPException(http_status.HTTP_409_CONFLICT,
-                            detail=f"Computer is already in '{target}' status.")
+                            detail=f"Device is already in '{target}' status.")
 
     # 2. Verify transition is allowed
     transition = db.query(models.DeviceStatusTransition).filter(
@@ -46,19 +46,19 @@ def change_computer_status(db: Session, computer_id: int, payload: schemas.Statu
 
     # 4. If transition requires_return, close active assignment
     if transition.requires_return:
-        active = db.query(models.ComputerAssignment).filter(
-            models.ComputerAssignment.computer_id == computer_id,
-            models.ComputerAssignment.returned_at == None  # noqa: E711
+        active = db.query(models.DeviceAssignment).filter(
+            models.DeviceAssignment.device_id == device_id,
+            models.DeviceAssignment.returned_at == None  # noqa: E711
         ).first()
         if active:
             active.returned_at  = datetime.now(timezone.utc)
 
     # 5. Apply status change
-    computer.status = target
+    device.status = target
 
     # 6. Write audit log
     db.add(models.DeviceStatusLog(
-        computer_id = computer_id,
+        device_id = device_id,
         from_status = current,
         to_status   = target,
         changed_by  = payload.changed_by,
@@ -66,19 +66,19 @@ def change_computer_status(db: Session, computer_id: int, payload: schemas.Statu
     ))
 
     db.commit()
-    db.refresh(computer)
-    return computer
+    db.refresh(device)
+    return device
 
 
-def get_status_log(db: Session, computer_id: int):
-    computer = db.query(models.Computer).filter(
-        models.Computer.computer_id == computer_id
+def get_status_log(db: Session, device_id: int):
+    device = db.query(models.Device).filter(
+        models.Device.device_id == device_id
     ).first()
-    if not computer:
-        raise HTTPException(http_status.HTTP_404_NOT_FOUND, detail=f"Computer {computer_id} not found.")
+    if not device:
+        raise HTTPException(http_status.HTTP_404_NOT_FOUND, detail=f"Device {device_id} not found.")
     return (
         db.query(models.DeviceStatusLog)
-        .filter(models.DeviceStatusLog.computer_id == computer_id)
+        .filter(models.DeviceStatusLog.device_id == device_id)
         .order_by(models.DeviceStatusLog.changed_at.desc())
         .all()
     )

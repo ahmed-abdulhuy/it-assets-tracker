@@ -1,18 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { Computer, ComputerCreate, ComputerUpdate } from '@/lib/types'
+import { Device, DeviceCreate, DeviceUpdate } from '@/lib/types'
 
 const STATUS_OPTIONS = ['available', 'assigned', 'maintenance', 'retired']
 
 interface Props {
-  initial?: Computer
-  onSubmit: (data: ComputerCreate | ComputerUpdate) => Promise<void>
+  initial?: Device
+  onSubmit: (data: DeviceCreate | DeviceUpdate) => Promise<void>
   onClose: () => void
   loading?: boolean
 }
 
-export function ComputerForm({ initial, onSubmit, onClose, loading }: Props) {
+export function DeviceForm({ initial, onSubmit, onClose, loading }: Props) {
   const [form, setForm] = useState({
     device_type: initial?.device_type ?? '',
     model:       initial?.model       ?? '',
@@ -44,7 +44,7 @@ export function ComputerForm({ initial, onSubmit, onClose, loading }: Props) {
         <div className="modal-header">
           <div className="modal-title">
             <span>{initial ? 'Edit record' : 'New record'}</span>
-            <strong>{initial ? 'Edit Computer' : 'Add Computer'}</strong>
+            <strong>{initial ? 'Edit Device' : 'Add Device'}</strong>
           </div>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
@@ -94,7 +94,7 @@ export function ComputerForm({ initial, onSubmit, onClose, loading }: Props) {
           <div className="modal-footer">
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Saving...' : initial ? 'Save Changes' : 'Add Computer'}
+              {loading ? 'Saving...' : initial ? 'Save Changes' : 'Add Device'}
             </button>
           </div>
         </form>

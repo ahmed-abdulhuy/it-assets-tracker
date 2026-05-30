@@ -29,8 +29,8 @@ export interface EmployeeUpdate {
   is_active?: boolean
 }
 
-export interface Computer {
-  computer_id: number
+export interface Device {
+  device_id: number
   device_type: string
   model: string | null
   specs: string | null
@@ -39,14 +39,14 @@ export interface Computer {
   updated_at: string
 }
 
-export interface ComputerCreate {
+export interface DeviceCreate {
   device_type: string
   model?: string
   specs?: string
   status?: string
 }
 
-export interface ComputerUpdate {
+export interface DeviceUpdate {
   device_type?: string
   model?: string
   specs?: string
@@ -55,7 +55,7 @@ export interface ComputerUpdate {
 
 export interface Assignment {
   assignment_id: number
-  computer_id: number
+  device_id: number
   employee_id: number
   assigned_at: string
   returned_at: string | null
@@ -64,16 +64,16 @@ export interface Assignment {
 
 export interface AssignmentDetailed extends Assignment {
   employee: Employee
-  computer: Computer
+  device: Device
 }
 
 export interface AssignmentCreate {
-  computer_id: number
+  device_id: number
   employee_id: number
   assigned_by?: string
 }
 
-export interface ComputerHistoryEntry {
+export interface DeviceHistoryEntry {
   assignment_id: number
   employee: Employee
   assigned_at: string
@@ -84,7 +84,7 @@ export interface ComputerHistoryEntry {
  
 export interface EmployeeHistoryEntry {
   assignment_id: number
-  computer: Computer
+  device: Device
   assigned_at: string
   returned_at: string | null
   assigned_by: string | null
@@ -118,7 +118,7 @@ export interface StatusChangeRequest {
  
 export interface DeviceStatusLogEntry {
   log_id: number
-  computer_id: number
+  device_id: number
   from_status: string | null
   to_status: string
   changed_by: string | null

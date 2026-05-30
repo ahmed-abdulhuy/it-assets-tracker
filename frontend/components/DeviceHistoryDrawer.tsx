@@ -1,8 +1,8 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { historyApi, computerApi, statusApi } from '@/lib/api'
-import { Computer } from '@/lib/types'
+import { historyApi, deviceApi, statusApi } from '@/lib/api'
+import { Device } from '@/lib/types'
 import { Drawer } from '@/components/Drawer'
 import { useState } from 'react'
 
@@ -29,9 +29,9 @@ function formatDuration(from: string, to: string | null) {
 type Tab = 'assignments' | 'status-log'
 
 interface Props {
-  computer: Computer
+  device: Device
   onClose: () => void
-  onChangeStatus: (c: Computer) => void
+  onChangeStatus: (c: Device) => void
 }
 
 
@@ -43,11 +43,11 @@ interface Props {
 //   return <span className={`badge ${map[status] ?? 'badge-gray'}`}>{status}</span>
 // }
 
-export function ComputerHistoryDrawer({ computer, onClose, onChangeStatus }: Props) {
+export function DeviceHistoryDrawer({ device, onClose, onChangeStatus }: Props) {
   // const [tab, setTab] = useState<Tab>('assignments')
   // const { data: history, isLoading, isError } = useQuery({
-  //   queryKey: ['computer-history', computer.computer_id],
-  //   queryFn: () => historyApi.forComputer(computer.computer_id),
+  //   queryKey: ['device-history', device.device_id],
+  //   queryFn: () => historyApi.forDevice(device.device_id),
   // })
 
   // const active = history?.filter(h => !h.returned_at) ?? []
@@ -55,12 +55,12 @@ export function ComputerHistoryDrawer({ computer, onClose, onChangeStatus }: Pro
   const [tab, setTab] = useState<Tab>('assignments')
  
   const { data: history,   isLoading: loadingHistory }  = useQuery({
-    queryKey: ['computer-history', computer.computer_id],
-    queryFn: () => historyApi.forComputer(computer.computer_id),
+    queryKey: ['device-history', device.device_id],
+    queryFn: () => historyApi.forDevice(device.device_id),
   })
   const { data: statusLog, isLoading: loadingLog } = useQuery({
-    queryKey: ['computer-status-log', computer.computer_id],
-    queryFn: () => computerApi.statusLog(computer.computer_id),
+    queryKey: ['device-status-log', device.device_id],
+    queryFn: () => deviceApi.statusLog(device.device_id),
   })
   const { data: allStatuses } = useQuery({
     queryKey: ['statuses'],
@@ -69,7 +69,7 @@ export function ComputerHistoryDrawer({ computer, onClose, onChangeStatus }: Pro
   })
  
   const statusMeta = (s: string) => allStatuses?.find(x => x.status === s)
-  const currentMeta = statusMeta(computer.status)
+  const currentMeta = statusMeta(device.status)
   const isTerminal = currentMeta?.is_terminal ?? false
 
 
@@ -78,15 +78,15 @@ export function ComputerHistoryDrawer({ computer, onClose, onChangeStatus }: Pro
       <button className="drawer-close" onClick={onClose}>✕</button>
 
       <div className="drawer-header">
-        <div className="drawer-label">Computer · Assignment History</div>
-        <div className="drawer-title">{computer.device_type}</div>
+        <div className="drawer-label">Device · Assignment History</div>
+        <div className="drawer-title">{device.device_type}</div>
         <div className="drawer-meta">
-          {computer.model && (
-            <span className="drawer-meta-item">{computer.model}</span>
+          {device.model && (
+            <span className="drawer-meta-item">{device.model}</span>
           )}
-          {computer.specs && (
+          {device.specs && (
             <span className="drawer-meta-item" style={{ color: 'var(--text-dim)', fontFamily: 'var(--font-mono)', fontSize: 11 }}>
-              · {computer.specs}
+              · {device.specs}
             </span>
           )}
           {/* Status badge */}
@@ -100,7 +100,7 @@ export function ComputerHistoryDrawer({ computer, onClose, onChangeStatus }: Pro
               {currentMeta.label}
             </span>
           ) : (
-            <span className="badge badge-gray">{computer.status}</span>
+            <span className="badge badge-gray">{device.status}</span>
           )}
         </div>
                 {/* Change status button */}
@@ -108,7 +108,7 @@ export function ComputerHistoryDrawer({ computer, onClose, onChangeStatus }: Pro
           <button
             className="btn btn-ghost btn-sm"
             style={{ width: '100%', justifyContent: 'center', marginTop: 4 }}
-            onClick={() => onChangeStatus(computer)}
+            onClick={() => onChangeStatus(device)}
           >
             ⇄ Change Status
           </button>

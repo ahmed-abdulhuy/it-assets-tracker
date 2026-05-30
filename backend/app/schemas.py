@@ -39,32 +39,32 @@ class EmployeeOut(EmployeeBase):
 
 
 # =====================================================
-# Computer Schemas
+# Device Schemas
 # =====================================================
 
-class ComputerBase(BaseModel):
+class DeviceBase(BaseModel):
     device_type: str
     model: Optional[str] = None
     specs: Optional[str] = None
     status: str = "available"
 
 
-class ComputerCreate(ComputerBase):
-    """Used when registering a new computer (POST)."""
+class DeviceCreate(DeviceBase):
+    """Used when registering a new device (POST)."""
     pass
 
 
-class ComputerUpdate(BaseModel):
-    """Used when updating a computer (PATCH). All fields optional."""
+class DeviceUpdate(BaseModel):
+    """Used when updating a device (PATCH). All fields optional."""
     device_type: Optional[str] = None
     model: Optional[str] = None
     specs: Optional[str] = None
     status: Optional[str] = None
 
 
-class ComputerOut(ComputerBase):
+class DeviceOut(DeviceBase):
     """Returned in API responses."""
-    computer_id: int
+    device_id: int
     created_at: datetime
     updated_at: datetime
 
@@ -77,18 +77,18 @@ class ComputerOut(ComputerBase):
 # =====================================================
 
 class AssignmentBase(BaseModel):
-    computer_id: int
+    device_id: int
     employee_id: int
     assigned_by: Optional[str] = None
 
 
 class AssignmentCreate(AssignmentBase):
-    """Used when assigning a computer to an employee (POST)."""
+    """Used when assigning a device to an employee (POST)."""
     pass
 
 
 class AssignmentReturn(BaseModel):
-    """Used when marking a computer as returned (PATCH)."""
+    """Used when marking a device as returned (PATCH)."""
     returned_at: Optional[datetime] = None  # Defaults to now if not provided
 
 
@@ -103,9 +103,9 @@ class AssignmentOut(AssignmentBase):
 
 
 class AssignmentOutDetailed(AssignmentOut):
-    """Extended response that includes nested employee and computer info."""
+    """Extended response that includes nested employee and device info."""
     employee: EmployeeOut
-    computer: ComputerOut
+    device: DeviceOut
 
     class Config:
         from_attributes = True
@@ -115,8 +115,8 @@ class AssignmentOutDetailed(AssignmentOut):
 # History Schemas
 # =====================================================
  
-class ComputerHistoryEntry(BaseModel):
-    """One entry in a computer's assignment history."""
+class DeviceHistoryEntry(BaseModel):
+    """One entry in a device's assignment history."""
     assignment_id: int
     employee: EmployeeOut
     assigned_at: datetime
@@ -130,7 +130,7 @@ class ComputerHistoryEntry(BaseModel):
 class EmployeeHistoryEntry(BaseModel):
     """One entry in an employee's assignment history."""
     assignment_id: int
-    computer: ComputerOut
+    device: DeviceOut
     assigned_at: datetime
     returned_at: Optional[datetime] = None
     assigned_by: Optional[str] = None
@@ -174,7 +174,7 @@ class StatusChangeRequest(BaseModel):
 
 class DeviceStatusLogOut(BaseModel):
     log_id:      int
-    computer_id: int
+    device_id: int
     from_status: Optional[str] = None
     to_status:   str
     changed_by:  Optional[str] = None

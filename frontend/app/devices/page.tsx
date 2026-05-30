@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { computerApi } from '@/lib/api'
-import { ComputerTable } from '@/components/ComputerTable'
-import { ComputerForm } from '@/components/ComputerForm'
+import { deviceApi } from '@/lib/api'
+import { DeviceTable } from '@/components/DeviceTable'
+import { DeviceForm } from '@/components/DeviceForm'
 import { ToastProvider, useToast } from '@/components/Toast'
 
 function PageContent() {
@@ -13,10 +13,10 @@ function PageContent() {
   const [showCreate, setShowCreate] = useState(false)
 
   const createMutation = useMutation({
-    mutationFn: computerApi.create,
+    mutationFn: deviceApi.create,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['computers'] })
-      toast('Computer added.', 'success')
+      qc.invalidateQueries({ queryKey: ['devices'] })
+      toast('Device added.', 'success')
       setShowCreate(false)
     },
     onError: (e: Error) => toast(e.message, 'error'),
@@ -27,17 +27,17 @@ function PageContent() {
       <div className="page-header">
         <div className="page-title">
           <span>Inventory</span>
-          <strong>Computers</strong>
+          <strong>Devices</strong>
         </div>
         <button className="btn btn-primary" onClick={() => setShowCreate(true)}>
-          + Add Computer
+          + Add Device
         </button>
       </div>
 
-      <ComputerTable />
+      <DeviceTable />
 
       {showCreate && (
-        <ComputerForm
+        <DeviceForm
           loading={createMutation.isPending}
           onClose={() => setShowCreate(false)}
           onSubmit={async data => {
@@ -49,6 +49,6 @@ function PageContent() {
   )
 }
 
-export default function ComputersPage() {
+export default function DevicesPage() {
   return <ToastProvider><PageContent /></ToastProvider>
 }

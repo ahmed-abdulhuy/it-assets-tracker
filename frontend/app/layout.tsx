@@ -5,7 +5,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Asset Manager',
-  description: 'Company computer and laptop asset management',
+  description: 'Company device and laptop asset management',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

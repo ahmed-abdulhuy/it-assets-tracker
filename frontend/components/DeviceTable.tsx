@@ -2,19 +2,19 @@
 
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { computerApi, statusApi } from '@/lib/api'
-import { Computer } from '@/lib/types'
-import { ComputerForm } from '@/components/ComputerForm'
-import { ComputerHistoryDrawer } from '@/components/ComputerHistoryDrawer'
+import { deviceApi, statusApi } from '@/lib/api'
+import { Device } from '@/lib/types'
+import { DeviceForm } from '@/components/DeviceForm'
+import { DeviceHistoryDrawer } from '@/components/DeviceHistoryDrawer'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { useToast } from '@/components/Toast'
 import { StatusTransitionModal } from './StatusTransitionModal'
 
 function StatusBadge({
-  computer,
+  device,
   onClick,
 }: {
-  computer: Computer
+  device: Device
   onClick: (e: React.MouseEvent) => void
 }) {
   const { data: allStatuses } = useQuery({
@@ -22,7 +22,7 @@ function StatusBadge({
     queryFn: statusApi.list,
     staleTime: Infinity,  // statuses never change at runtime
   })
-  const meta = allStatuses?.find(s => s.status === computer.status)
+  const meta = allStatuses?.find(s => s.status === device.status)
  
   const style = meta ? {
     background: meta.color + '18',
@@ -38,7 +38,7 @@ function StatusBadge({
       onClick={meta?.is_terminal ? undefined : onClick}
       title={meta?.is_terminal ? 'Terminal status — no transitions available' : 'Click to change status'}
     >
-      {meta?.label ?? computer.status}
+      {meta?.label ?? device.status}
       {!meta?.is_terminal && (
         <span style={{ marginLeft: 5, opacity: 0.6, fontSize: 9 }}>▾</span>
       )}
@@ -46,50 +46,50 @@ function StatusBadge({
   )
 }
 
-export function ComputerTable() {
+export function DeviceTable() {
   const qc = useQueryClient()
   const { toast } = useToast()
 
-  const { data: computers, isLoading, isError } = useQuery({
-    queryKey: ['computers'],
-    queryFn: computerApi.list,
+  const { data: devices, isLoading, isError } = useQuery({
+    queryKey: ['devices'],
+    queryFn: deviceApi.list,
   })
 
 
-  const [editing, setEditing]   = useState<Computer | null>(null)
-  const [deleting, setDeleting] = useState<Computer | null>(null)
-  const [viewingHistory, setViewingHistory] = useState<Computer | null>(null)
-  const [changingStatus, setChangingStatus] = useState<Computer | null>(null)
+  const [editing, setEditing]   = useState<Device | null>(null)
+  const [deleting, setDeleting] = useState<Device | null>(null)
+  const [viewingHistory, setViewingHistory] = useState<Device | null>(null)
+  const [changingStatus, setChangingStatus] = useState<Device | null>(null)
 
 
   const updateMutation = useMutation({
-    mutationFn: (data: { id: number; payload: Partial<Computer> }) => computerApi.update(data.id, data.payload as Parameters<typeof computerApi.update>[1]),
+    mutationFn: (data: { id: number; payload: Partial<Device> }) => deviceApi.update(data.id, data.payload as Parameters<typeof deviceApi.update>[1]),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['computers'] })
-      toast('Computer updated.', 'success')
+      qc.invalidateQueries({ queryKey: ['devices'] })
+      toast('Device updated.', 'success')
       setEditing(null)
     },
     onError: (e: Error) => toast(e.message, 'error'),
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (id: number) => computerApi.remove(id),
+    mutationFn: (id: number) => deviceApi.remove(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['computers'] })
-      toast('Computer deleted.', 'success')
+      qc.invalidateQueries({ queryKey: ['devices'] })
+      toast('Device deleted.', 'success')
       setDeleting(null)
     },
     onError: (e: Error) => toast(e.message, 'error'),
   })
 
-  if (isLoading) return <div className="state-loading"><span className="state-icon">◌</span>Loading computers...</div>
-  if (isError)   return <div className="state-error"><span className="state-icon">✕</span>Failed to load computers.</div>
+  if (isLoading) return <div className="state-loading"><span className="state-icon">◌</span>Loading devices...</div>
+  if (isError)   return <div className="state-error"><span className="state-icon">✕</span>Failed to load devices.</div>
 
   return (
     <>
       <div className="table-wrap">
-        {!computers?.length ? (
-          <div className="state-empty"><span className="state-icon">○</span>No computers found.</div>
+        {!devices?.length ? (
+          <div className="state-empty"><span className="state-icon">○</span>No devices found.</div>
         ) : (
           <table>
             <thead>
@@ -103,18 +103,18 @@ export function ComputerTable() {
               </tr>
             </thead>
             <tbody>
-              {computers.map(c => (
-                <tr key={c.computer_id}
+              {devices.map(c => (
+                <tr key={c.device_id}
                   className="clickable"
                   onClick={() => setViewingHistory(c)}
                 >
-                  <td className="td-mono">{c.computer_id}</td>
+                  <td className="td-mono">{c.device_id}</td>
                   <td><strong>{c.device_type}</strong></td>
                   <td>{c.model ?? '—'}</td>
                   <td className="td-mono" style={{ fontSize: 11 }}>{c.specs ?? '—'}</td>
                   <td onClick={e => e.stopPropagation()}>
                     <StatusBadge
-                      computer={c}
+                      device={c}
                       onClick={e => { e.stopPropagation(); setChangingStatus(c) }}
                     />
                   </td>
@@ -138,12 +138,12 @@ export function ComputerTable() {
       {/* Status transition modal */}
       {changingStatus && (
         <StatusTransitionModal
-          computer={changingStatus}
+          device={changingStatus}
           onClose={() => setChangingStatus(null)}
           onSuccess={(updated) => {
             setChangingStatus(null)
-            // If history drawer is open for this computer, refresh it
-            if (viewingHistory?.computer_id === updated.computer_id) {
+            // If history drawer is open for this device, refresh it
+            if (viewingHistory?.device_id === updated.device_id) {
               setViewingHistory(updated)
             }
           }}
@@ -152,32 +152,32 @@ export function ComputerTable() {
  
       {/* History drawer */}
       {viewingHistory && (
-        <ComputerHistoryDrawer
-          computer={viewingHistory}
+        <DeviceHistoryDrawer
+          device={viewingHistory}
           onClose={() => setViewingHistory(null)}
           onChangeStatus={(c) => { setChangingStatus(c) }}
         />
       )}
 
       {editing && (
-        <ComputerForm
+        <DeviceForm
           initial={editing}
           loading={updateMutation.isPending}
           onClose={() => setEditing(null)}
           onSubmit={async payload => {
-            await updateMutation.mutateAsync({ id: editing.computer_id, payload })
+            await updateMutation.mutateAsync({ id: editing.device_id, payload })
           }}
         />
       )}
 
       {deleting && (
         <ConfirmDialog
-          title="Delete Computer"
+          title="Delete Device"
           danger
           message={<>Remove <strong>{deleting.device_type}</strong> permanently? This cannot be undone.</>}
           confirmLabel="Delete"
           loading={deleteMutation.isPending}
-          onConfirm={() => deleteMutation.mutate(deleting.computer_id)}
+          onConfirm={() => deleteMutation.mutate(deleting.device_id)}
           onCancel={() => setDeleting(null)}
         />
       )}

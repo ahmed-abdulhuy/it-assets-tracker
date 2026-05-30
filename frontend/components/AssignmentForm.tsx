@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { employeeApi, computerApi } from '@/lib/api'
+import { employeeApi, deviceApi } from '@/lib/api'
 import { AssignmentCreate } from '@/lib/types'
 
 interface Props {
@@ -13,21 +13,21 @@ interface Props {
 
 export function AssignmentForm({ onSubmit, onClose, loading }: Props) {
   const [form, setForm] = useState<AssignmentCreate>({
-    computer_id: 0,
+    device_id: 0,
     employee_id: 0,
     assigned_by: '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const { data: employees } = useQuery({ queryKey: ['employees'], queryFn: employeeApi.list })
-  const { data: computers } = useQuery({ queryKey: ['computers'], queryFn: computerApi.list })
+  const { data: devices } = useQuery({ queryKey: ['devices'], queryFn: deviceApi.list })
 
   const activeEmployees  = employees?.filter(e => e.is_active) ?? []
-  const availableComputers = computers?.filter(c => c.status === 'available') ?? []
+  const availableDevices = devices?.filter(c => c.status === 'available') ?? []
 
   function validate() {
     const e: Record<string, string> = {}
-    if (!form.computer_id) e.computer_id = 'Select a computer'
+    if (!form.device_id) e.device_id = 'Select a device'
     if (!form.employee_id) e.employee_id = 'Select an employee'
     setErrors(e)
     return Object.keys(e).length === 0
@@ -45,7 +45,7 @@ export function AssignmentForm({ onSubmit, onClose, loading }: Props) {
         <div className="modal-header">
           <div className="modal-title">
             <span>New record</span>
-            <strong>Assign Computer</strong>
+            <strong>Assign Device</strong>
           </div>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
@@ -53,21 +53,21 @@ export function AssignmentForm({ onSubmit, onClose, loading }: Props) {
         <form onSubmit={handleSubmit}>
           <div className="form-grid">
             <div className="field">
-              <label>Computer</label>
+              <label>Device</label>
               <select
-                value={form.computer_id || ''}
-                onChange={e => setForm(f => ({ ...f, computer_id: Number(e.target.value) }))}
+                value={form.device_id || ''}
+                onChange={e => setForm(f => ({ ...f, device_id: Number(e.target.value) }))}
               >
-                <option value="">— Select available computer —</option>
-                {availableComputers.map(c => (
-                  <option key={c.computer_id} value={c.computer_id}>
-                    [{c.computer_id}] {c.device_type}{c.model ? ` · ${c.model}` : ''}
+                <option value="">— Select available device —</option>
+                {availableDevices.map(c => (
+                  <option key={c.device_id} value={c.device_id}>
+                    [{c.device_id}] {c.device_type}{c.model ? ` · ${c.model}` : ''}
                   </option>
                 ))}
               </select>
-              {errors.computer_id && <span className="field-error">{errors.computer_id}</span>}
-              {computers && availableComputers.length === 0 && (
-                <span className="field-error">No available computers.</span>
+              {errors.device_id && <span className="field-error">{errors.device_id}</span>}
+              {devices && availableDevices.length === 0 && (
+                <span className="field-error">No available devices.</span>
               )}
             </div>
 
@@ -100,7 +100,7 @@ export function AssignmentForm({ onSubmit, onClose, loading }: Props) {
           <div className="modal-footer">
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Assigning...' : 'Assign Computer'}
+              {loading ? 'Assigning...' : 'Assign Device'}
             </button>
           </div>
         </form>

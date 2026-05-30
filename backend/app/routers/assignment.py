@@ -8,8 +8,8 @@ router = APIRouter(prefix="/assignments", tags=["Assignments"])
 
 
 @router.post("/", response_model=schemas.AssignmentOut, status_code=status.HTTP_201_CREATED)
-def assign_computer(assignment: schemas.AssignmentCreate, db: Session = Depends(get_db)):
-    return crud_assignment.assign_computer(db, assignment)
+def assign_device(assignment: schemas.AssignmentCreate, db: Session = Depends(get_db)):
+    return crud_assignment.assign_device(db, assignment)
 
 
 @router.get("/", response_model=list[schemas.AssignmentOutDetailed])
@@ -18,21 +18,21 @@ def get_assignments(db: Session = Depends(get_db)):
 
 
 @router.patch("/{assignment_id}/return", response_model=schemas.AssignmentOut)
-def return_computer(
+def return_device(
     assignment_id: int,
     payload: schemas.AssignmentReturn,
     db: Session = Depends(get_db)
 ):
-    return crud_assignment.return_computer(db, assignment_id, payload.returned_at)
+    return crud_assignment.return_device(db, assignment_id, payload.returned_at)
 
 
-@router.get("/active/{computer_id}", response_model=schemas.AssignmentOut)
-def get_active_assignment(computer_id: int, db: Session = Depends(get_db)):
-    assignment = crud_assignment.get_active_assignment(db, computer_id)
+@router.get("/active/{device_id}", response_model=schemas.AssignmentOut)
+def get_active_assignment(device_id: int, db: Session = Depends(get_db)):
+    assignment = crud_assignment.get_active_assignment(db, device_id)
     if not assignment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No active assignment found for computer {computer_id}."
+            detail=f"No active assignment found for device {device_id}."
         )
     return assignment
 

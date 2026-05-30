@@ -31,14 +31,14 @@ class Employee(SQLModel, table=True):
     )
 
     # One employee can have many assignment records (history)
-    assignments: list["ComputerAssignment"] = Relationship(
+    assignments: list["DeviceAssignment"] = Relationship(
         back_populates="employee"
     )
 
-class Computer(SQLModel, table=True):
-    __tablename__ = "computers"
+class Device(SQLModel, table=True):
+    __tablename__ = "devices"
 
-    computer_id: Optional[int] = Field(default=None, primary_key=True, index=True)
+    device_id: Optional[int] = Field(default=None, primary_key=True, index=True)
 
     device_type: str
     model: Optional[str] = None
@@ -66,24 +66,24 @@ class Computer(SQLModel, table=True):
         )
     )
 
-    # One computer can have many assignment records (history)
-    assignments: list["ComputerAssignment"] = Relationship(
-        back_populates="computer"
+    # One device can have many assignment records (history)
+    assignments: list["DeviceAssignment"] = Relationship(
+        back_populates="device"
     )
 
     status_logs: List["DeviceStatusLog"] = Relationship(
-        back_populates="computer"
+        back_populates="device"
     )
 
     status_obj: Optional["DeviceStatus"] = Relationship()
 
 
-class ComputerAssignment(SQLModel, table=True):
-    __tablename__ = "computer_assignments"
+class DeviceAssignment(SQLModel, table=True):
+    __tablename__ = "device_assignments"
 
     assignment_id: Optional[int] = Field(default=None, primary_key=True, index=True)
 
-    computer_id: int = Field(foreign_key="computers.computer_id")
+    device_id: int = Field(foreign_key="devices.device_id")
     employee_id: int = Field(foreign_key="employees.employee_id")
 
     assigned_at: datetime | None = Field(
@@ -97,7 +97,7 @@ class ComputerAssignment(SQLModel, table=True):
     returned_at: Optional[datetime] = None
     assigned_by: Optional[str] = None
 
-    computer: Optional["Computer"] = Relationship(
+    device: Optional["Device"] = Relationship(
         back_populates="assignments"
     )
 
@@ -128,9 +128,9 @@ class DeviceStatus(SQLModel, table=True):
 
     is_terminal: bool = False
 
-    computers: List["Computer"] = Relationship(
+    devices: List["Device"] = Relationship(
         sa_relationship_kwargs={
-            "primaryjoin": "DeviceStatus.status==Computer.status"
+            "primaryjoin": "DeviceStatus.status==Device.status"
         }
     )
     transitions_from: List["DeviceStatusTransition"] = Relationship(
@@ -194,8 +194,8 @@ class DeviceStatusLog(SQLModel, table=True):
         index=True
     )
 
-    computer_id: int = Field(
-        foreign_key="computers.computer_id"
+    device_id: int = Field(
+        foreign_key="devices.device_id"
     )
 
     from_status: Optional[str] = Field(
@@ -222,6 +222,6 @@ class DeviceStatusLog(SQLModel, table=True):
         )
     )
 
-    computer: Optional["Computer"] = Relationship(
+    device: Optional["Device"] = Relationship(
         back_populates="status_logs"
     )

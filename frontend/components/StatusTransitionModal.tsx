@@ -2,17 +2,17 @@
 
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { statusApi, computerApi } from '@/lib/api'
-import { Computer, DeviceStatusTransition } from '@/lib/types'
+import { statusApi, deviceApi } from '@/lib/api'
+import { Device, DeviceStatusTransition } from '@/lib/types'
 import { useToast } from '@/components/Toast'
 
 interface Props {
-  computer: Computer
+  device: Device
   onClose: () => void
-  onSuccess: (updated: Computer) => void
+  onSuccess: (updated: Device) => void
 }
 
-export function StatusTransitionModal({ computer, onClose, onSuccess }: Props) {
+export function StatusTransitionModal({ device, onClose, onSuccess }: Props) {
   const qc = useQueryClient()
   const { toast } = useToast()
   const [selected, setSelected] = useState<DeviceStatusTransition | null>(null)
@@ -20,8 +20,8 @@ export function StatusTransitionModal({ computer, onClose, onSuccess }: Props) {
   const [changedBy, setChangedBy] = useState('')
 
   const { data: transitions, isLoading } = useQuery({
-    queryKey: ['transitions', computer.status],
-    queryFn: () => statusApi.transitions(computer.status),
+    queryKey: ['transitions', device.status],
+    queryFn: () => statusApi.transitions(device.status),
   })
 
   const { data: allStatuses } = useQuery({
@@ -29,18 +29,18 @@ export function StatusTransitionModal({ computer, onClose, onSuccess }: Props) {
     queryFn: statusApi.list,
   })
 
-  const currentStatusMeta = allStatuses?.find(s => s.status === computer.status)
+  const currentStatusMeta = allStatuses?.find(s => s.status === device.status)
 
   const mutation = useMutation({
-    mutationFn: () => computerApi.changeStatus(computer.computer_id, {
+    mutationFn: () => deviceApi.changeStatus(device.device_id, {
       to_status:  selected!.to_status,
       changed_by: changedBy || undefined,
       note:       note      || undefined,
     }),
     onSuccess: (updated) => {
-      qc.invalidateQueries({ queryKey: ['computers'] })
+      qc.invalidateQueries({ queryKey: ['devices'] })
       qc.invalidateQueries({ queryKey: ['assignments'] })
-      qc.invalidateQueries({ queryKey: ['computer-history', computer.computer_id] })
+      qc.invalidateQueries({ queryKey: ['device-history', device.device_id] })
       toast(`Status changed to "${selected!.to_status_obj.label}".`, 'success')
       onSuccess(updated)
       onClose()
@@ -56,7 +56,7 @@ export function StatusTransitionModal({ computer, onClose, onSuccess }: Props) {
         <div className="modal-header">
           <div className="modal-title">
             <span>Status Management</span>
-            <strong>{computer.device_type}</strong>
+            <strong>{device.device_type}</strong>
           </div>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
@@ -79,7 +79,7 @@ export function StatusTransitionModal({ computer, onClose, onSuccess }: Props) {
               {currentStatusMeta.label}
             </span>
           ) : (
-            <span className="badge badge-gray">{computer.status}</span>
+            <span className="badge badge-gray">{device.status}</span>
           )}
           {currentStatusMeta?.is_terminal && (
             <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', marginLeft: 'auto' }}>
