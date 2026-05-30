@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app import schemas
 from app.crud import computer as crud_computer
 from app.crud import assignment as crud_assignment
+from app.crud import status as crud_status
 from app.database import get_db
 from typing import List
 
@@ -45,4 +46,19 @@ def delete_computer(computer_id: int, db: Session = Depends(get_db)):
     db_computer = crud_computer.get_computer(db, computer_id)
     if db_computer is None:
         raise HTTPException(status_code=404, detail="Computer not found")
-    return crud_computer.delete_computer(db, computer_id)
+    #! Later, add logic to assign a action taker (user) to changed_by
+    return crud_computer.delete_computer(db, computer_id, changed_by="API User")
+
+
+@router.post("/{computer_id}/status", response_model=schemas.ComputerOut)
+def change_status(
+    computer_id: int,
+    payload: schemas.StatusChangeRequest,
+    db: Session = Depends(get_db)
+):
+    return crud_status.change_computer_status(db, computer_id, payload)
+ 
+ 
+@router.get("/{computer_id}/status-log", response_model=List[schemas.DeviceStatusLogOut])
+def get_status_log(computer_id: int, db: Session = Depends(get_db)):
+    return crud_status.get_status_log(db, computer_id)

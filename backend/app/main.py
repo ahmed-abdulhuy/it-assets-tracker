@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.routers import employee, computer, assignment
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_db
+from app.routers import status
  
 app = FastAPI(title="Asset Management API")
 
@@ -20,6 +21,7 @@ def on_startup():
 app.include_router(employee.router)
 app.include_router(computer.router)
 app.include_router(assignment.router)
+app.include_router(status.router)
 
  
 @app.get("/health")

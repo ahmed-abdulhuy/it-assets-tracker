@@ -2,21 +2,48 @@
 
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { computerApi } from '@/lib/api'
+import { computerApi, statusApi } from '@/lib/api'
 import { Computer } from '@/lib/types'
 import { ComputerForm } from '@/components/ComputerForm'
 import { ComputerHistoryDrawer } from '@/components/ComputerHistoryDrawer'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { useToast } from '@/components/Toast'
+import { StatusTransitionModal } from './StatusTransitionModal'
 
-function statusBadge(status: string) {
-  const map: Record<string, string> = {
-    available:   'badge-green',
-    assigned:    'badge-amber',
-    maintenance: 'badge-blue',
-    retired:     'badge-gray',
-  }
-  return <span className={`badge ${map[status] ?? 'badge-gray'}`}>{status}</span>
+function StatusBadge({
+  computer,
+  onClick,
+}: {
+  computer: Computer
+  onClick: (e: React.MouseEvent) => void
+}) {
+  const { data: allStatuses } = useQuery({
+    queryKey: ['statuses'],
+    queryFn: statusApi.list,
+    staleTime: Infinity,  // statuses never change at runtime
+  })
+  const meta = allStatuses?.find(s => s.status === computer.status)
+ 
+  const style = meta ? {
+    background: meta.color + '18',
+    color: meta.color,
+    border: `1px solid ${meta.color}44`,
+    cursor: meta.is_terminal ? 'default' : 'pointer',
+  } : {}
+ 
+  return (
+    <span
+      className="badge"
+      style={style}
+      onClick={meta?.is_terminal ? undefined : onClick}
+      title={meta?.is_terminal ? 'Terminal status — no transitions available' : 'Click to change status'}
+    >
+      {meta?.label ?? computer.status}
+      {!meta?.is_terminal && (
+        <span style={{ marginLeft: 5, opacity: 0.6, fontSize: 9 }}>▾</span>
+      )}
+    </span>
+  )
 }
 
 export function ComputerTable() {
@@ -28,9 +55,12 @@ export function ComputerTable() {
     queryFn: computerApi.list,
   })
 
+
   const [editing, setEditing]   = useState<Computer | null>(null)
   const [deleting, setDeleting] = useState<Computer | null>(null)
   const [viewingHistory, setViewingHistory] = useState<Computer | null>(null)
+  const [changingStatus, setChangingStatus] = useState<Computer | null>(null)
+
 
   const updateMutation = useMutation({
     mutationFn: (data: { id: number; payload: Partial<Computer> }) => computerApi.update(data.id, data.payload as Parameters<typeof computerApi.update>[1]),
@@ -82,7 +112,13 @@ export function ComputerTable() {
                   <td><strong>{c.device_type}</strong></td>
                   <td>{c.model ?? '—'}</td>
                   <td className="td-mono" style={{ fontSize: 11 }}>{c.specs ?? '—'}</td>
-                  <td>{statusBadge(c.status)}</td>
+                  <td onClick={e => e.stopPropagation()}>
+                    <StatusBadge
+                      computer={c}
+                      onClick={e => { e.stopPropagation(); setChangingStatus(c) }}
+                    />
+                  </td>
+
                   <td>
                     <div className="td-actions">
                       <button className="btn btn-ghost btn-sm" onClick={(e) => {setEditing(c); e.stopPropagation()}}>Edit</button>
@@ -98,10 +134,28 @@ export function ComputerTable() {
       <p style={{ marginTop: 10, fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)', letterSpacing: '0.06em' }}>
         CLICK A ROW TO VIEW ASSIGNMENT HISTORY
       </p>
+      
+      {/* Status transition modal */}
+      {changingStatus && (
+        <StatusTransitionModal
+          computer={changingStatus}
+          onClose={() => setChangingStatus(null)}
+          onSuccess={(updated) => {
+            setChangingStatus(null)
+            // If history drawer is open for this computer, refresh it
+            if (viewingHistory?.computer_id === updated.computer_id) {
+              setViewingHistory(updated)
+            }
+          }}
+        />
+      )}
+ 
+      {/* History drawer */}
       {viewingHistory && (
         <ComputerHistoryDrawer
           computer={viewingHistory}
           onClose={() => setViewingHistory(null)}
+          onChangeStatus={(c) => { setChangingStatus(c) }}
         />
       )}
 

@@ -2,7 +2,9 @@ import {
   Employee, EmployeeCreate, EmployeeUpdate,
   Computer, ComputerCreate, ComputerUpdate,
   Assignment, AssignmentDetailed, AssignmentCreate,
-  ComputerHistoryEntry, EmployeeHistoryEntry
+  ComputerHistoryEntry, EmployeeHistoryEntry,
+  StatusChangeRequest, DeviceStatusLogEntry,
+  DeviceStatus, DeviceStatusTransition,
 } from './types'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -47,6 +49,10 @@ export const computerApi = {
     method: 'PATCH', body: JSON.stringify(data)
   }),
   remove: (id: number) => request<void>(`/computers/${id}`, { method: 'DELETE' }),
+  changeStatus: (id: number, data: StatusChangeRequest) =>
+    request<Computer>(`/computers/${id}/status`, { method: 'POST', body: JSON.stringify(data) }),
+  statusLog: (id: number) => request<DeviceStatusLogEntry[]>(`/computers/${id}/status-log`),
+
 }
 
 // =====================================================
@@ -70,4 +76,11 @@ export const historyApi = {
     request<ComputerHistoryEntry[]>(`/computers/${computerId}/history`),
   forEmployee: (employeeId: number) =>
     request<EmployeeHistoryEntry[]>(`/employees/${employeeId}/history`),
+}
+
+
+// ── Statuses ──────────────────────────────────────
+export const statusApi = {
+  list: () => request<DeviceStatus[]>('/statuses/'),
+  transitions: (status: string) => request<DeviceStatusTransition[]>(`/statuses/${status}/transitions`),
 }

@@ -79,6 +79,7 @@ export interface ComputerHistoryEntry {
   assigned_at: string
   returned_at: string | null
   assigned_by: string | null
+  close_reason: string | null
 }
  
 export interface EmployeeHistoryEntry {
@@ -87,4 +88,40 @@ export interface EmployeeHistoryEntry {
   assigned_at: string
   returned_at: string | null
   assigned_by: string | null
+}
+
+
+// ── Status management ─────────────────────────────
+ 
+export interface DeviceStatus {
+  status: string
+  label: string
+  color: string
+  description: string | null
+  is_terminal: boolean
+}
+ 
+export interface DeviceStatusTransition {
+  from_status: string
+  to_status: string
+  label: string | null
+  description: string | null
+  requires_return: boolean
+  to_status_obj: DeviceStatus
+}
+ 
+export interface StatusChangeRequest {
+  to_status: string
+  changed_by?: string
+  note?: string
+}
+ 
+export interface DeviceStatusLogEntry {
+  log_id: number
+  computer_id: number
+  from_status: string | null
+  to_status: string
+  changed_by: string | null
+  note: string | null
+  changed_at: string
 }

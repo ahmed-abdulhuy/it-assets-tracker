@@ -137,3 +137,49 @@ class EmployeeHistoryEntry(BaseModel):
  
     class Config:
         from_attributes = True
+
+
+# =====================================================
+# Status Schemas
+# =====================================================
+ 
+class DeviceStatusOut(BaseModel):
+    status:      str
+    label:       str
+    color:       str
+    description: Optional[str] = None
+    is_terminal: bool
+ 
+    class Config:
+        from_attributes = True
+ 
+ 
+class DeviceStatusTransitionOut(BaseModel):
+    from_status:     str
+    to_status:       str
+    label:           Optional[str] = None
+    description:     Optional[str] = None
+    requires_return: bool
+    to_status_obj:   DeviceStatusOut  # includes color + label of the target status
+ 
+    class Config:
+        from_attributes = True
+ 
+ 
+class StatusChangeRequest(BaseModel):
+    to_status:  str
+    changed_by: Optional[str] = None
+    note:       Optional[str] = None
+ 
+
+class DeviceStatusLogOut(BaseModel):
+    log_id:      int
+    computer_id: int
+    from_status: Optional[str] = None
+    to_status:   str
+    changed_by:  Optional[str] = None
+    note:        Optional[str] = None
+    changed_at:  datetime
+ 
+    class Config:
+        from_attributes = True

@@ -79,16 +79,18 @@ export function ComputerForm({ initial, onSubmit, onClose, loading }: Props) {
               />
             </div>
 
-            <div className="field">
-              <label>Status</label>
-              <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-                {STATUS_OPTIONS.map(s => (
-                  <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                ))}
-              </select>
-            </div>
+            {initial && (
+              <div style={{
+                fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--text-dim)',
+                background: 'var(--bg-row)', border: '1px solid var(--border)',
+                borderRadius: 'var(--radius)', padding: '10px 12px',
+                letterSpacing: '0.06em',
+              }}>
+                ℹ STATUS is managed via the status badge — use Change Status to transition.
+              </div>
+            )}
           </div>
-
+ 
           <div className="modal-footer">
             <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
