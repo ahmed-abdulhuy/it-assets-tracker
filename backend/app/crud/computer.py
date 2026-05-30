@@ -57,14 +57,12 @@ def update_computer(db: Session, computer_id: int, computer: schemas.ComputerUpd
     db.refresh(db_computer)
     return db_computer
 
-def delete_computer(db: Session, computer_id: int):
-    db_computer = get_computer(db, computer_id)
-    if not db_computer:
-        return None
 
-    db_computer.status = "decommissioned"
-    db.add(db_computer)
-    db.commit()
-    db.refresh(db_computer)
-    
-    return db_computer 
+def delete_computer(db: Session, computer_id: int, changed_by: str | None = None):
+    return change_computer_status(
+            db=db,
+            computer_id=computer_id,
+            new_status="decommissioned",
+            changed_by=changed_by,
+            note="Computer decommissioned"
+        )
