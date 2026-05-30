@@ -55,6 +55,11 @@ services:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
       - CHOKIDAR_USEPOLLING=true
       - NEXT_PRIVATE_WATCHPACK_POLLING=true
+      - NODE_OPTIONS=--enable-source-maps
+
+    command: >
+      node --inspect=0.0.0.0:9229
+      ./node_modules/next/dist/bin/next dev
 
 
 
