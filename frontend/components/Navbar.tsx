@@ -4,13 +4,18 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const links = [
-  { href: '/employees',  label: 'Employees'  },
-  { href: '/computers',  label: 'Computers'  },
-  { href: '/assignments', label: 'Assignments' },
+  { href: '/',            label: 'Dashboard',   exact: true },
+  { href: '/employees',   label: 'Employees',   exact: false },
+  { href: '/computers',   label: 'Computers',   exact: false },
+  { href: '/assignments', label: 'Assignments', exact: false },
 ]
 
 export function Navbar() {
   const pathname = usePathname()
+  function isActive(href: string, exact: boolean) {
+    return exact ? pathname === href : pathname.startsWith(href)
+  }
+
 
   return (
     <nav className="navbar">
@@ -22,7 +27,7 @@ export function Navbar() {
           <Link
             key={link.href}
             href={link.href}
-            className={`navbar-link ${pathname.startsWith(link.href) ? 'active' : ''}`}
+            className={`navbar-link ${isActive(link.href, link.exact) ? 'active' : ''}`}
           >
             {link.label}
           </Link>
