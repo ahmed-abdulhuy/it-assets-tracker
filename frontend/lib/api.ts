@@ -7,8 +7,7 @@ import {
   DeviceStatus, DeviceStatusTransition,
 } from './types'
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "/api"
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
     headers: { 'Content-Type': 'application/json' },
