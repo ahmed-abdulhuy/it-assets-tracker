@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     POSTGRES_PORT:str
     
     model_config = SettingsConfigDict(
-        env_file="backend/.env",
+        env_file="/app/.env",
         extra="ignore"
     )
 

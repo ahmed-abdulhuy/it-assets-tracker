@@ -23,6 +23,28 @@ services:
     expose:
       - "5432"
 
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+
+    container_name: IT-Inventory-Migrate
+
+    env_file:
+      - .env
+
+    depends_on:
+      database:
+        condition: service_healthy
+
+    command: >
+      sh -c "
+        alembic upgrade head &&
+        python -m app.scripts.seed_all
+      "
+
+    restart: "no"
+
   backend:
     build:
       context: ./backend
@@ -38,6 +60,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
     expose:
       - "8000"
