@@ -11,7 +11,7 @@ echo "Running migrations..."
 alembic upgrade head
 
 echo "Running seeds..."
-python -m app.scripts.seed_all
+python -m app.scripts.seeding.seed_all
 
 echo "Starting API..."
 

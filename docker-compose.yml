@@ -35,7 +35,7 @@ services:
       - "5678:5678" # Debug Port
     environment:
       - PYTHONUNBUFFERED=1
-    command: /scripts/start-dv.sh
+    command: app/scripts/start-dev.sh
   frontend:
     build: ./frontend
     volumes:

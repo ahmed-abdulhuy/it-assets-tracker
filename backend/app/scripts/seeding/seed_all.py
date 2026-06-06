@@ -2,8 +2,8 @@
 
 from sqlmodel import Session
 from app.database import engine
-from app.scripts.seed_device_statuses import seed_device_statuses
-from app.scripts.seed_status_transitions import seed_device_status_transitions
+from app.scripts.seeding.seed_device_statuses import seed_device_statuses
+from app.scripts.seeding.seed_status_transitions import seed_device_status_transitions
 
 
 def seed_all():
