@@ -8,4 +8,4 @@ echo "Pulling latest code..."
 git pull origin production
 
 echo "Building containers..."
-docker compose -f docker-compose.production.yml up -d --build
+docker compose -f docker-compose.prod.yml up -d --build
