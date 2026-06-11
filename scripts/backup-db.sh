@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-source ../.env
+source .env
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
@@ -14,4 +14,4 @@ docker exec IT-Inventory-Database \
   | gzip > "backups/db_${TIMESTAMP}.sql.gz"
 
 echo "Database backup created:"
-echo "backups/db_${TIMESTAMP}.sql"
+echo "backups/db_${TIMESTAMP}.sql.gz"
