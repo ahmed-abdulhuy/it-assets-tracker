@@ -31,7 +31,11 @@ def change_device_status(db: Session, device_id: int, payload: schemas.StatusCha
         raise HTTPException(http_status.HTTP_409_CONFLICT,
                             detail=f"Device is already in '{target}' status.")
 
-    # 2. Verify transition is allowed
+    # 2. Verify target status exists
+    if not db.query(models.DeviceStatus).filter(models.DeviceStatus.status == target).first():
+        raise HTTPException(http_status.HTTP_400_BAD_REQUEST, detail=f"Unknown status '{target}'.")
+
+    # 3. Verify transition is allowed
     transition = db.query(models.DeviceStatusTransition).filter(
         models.DeviceStatusTransition.from_status == current,
         models.DeviceStatusTransition.to_status   == target,
@@ -40,9 +44,6 @@ def change_device_status(db: Session, device_id: int, payload: schemas.StatusCha
         raise HTTPException(http_status.HTTP_422_UNPROCESSABLE_ENTITY,
                             detail=f"Transition from '{current}' to '{target}' is not allowed.")
 
-    # 3. Verify target status exists
-    if not db.query(models.DeviceStatus).filter(models.DeviceStatus.status == target).first():
-        raise HTTPException(http_status.HTTP_400_BAD_REQUEST, detail=f"Unknown status '{target}'.")
 
     # 4. If transition requires_return, close active assignment
     if transition.requires_return:
