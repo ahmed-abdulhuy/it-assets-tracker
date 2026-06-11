@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     POSTGRES_USER: str
@@ -8,10 +8,6 @@ class Settings(BaseSettings):
     PGAdMIN_PASSWORD: str
     POSTGRES_HOST:str
     POSTGRES_PORT:str
-    
-    model_config = SettingsConfigDict(
-        env_file="/app/.env",
-        extra="ignore"
-    )
+
 
 ENV_VARS = Settings()
