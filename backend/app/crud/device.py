@@ -2,15 +2,18 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 from app.services.device_status_service import status_exists
 from app.crud.status import change_device_status
+from sqlmodel import select
 
 def get_device(db: Session, device_id: int):
-    return db.query(models.Device).filter(
-        models.Device.device_id == device_id
+    return db.exec(
+        select(models.Device).where(
+            models.Device.device_id == device_id
+        )
     ).first()
 
 
 def get_devices(db: Session):
-    return db.query(models.Device).all()
+    return db.exec(select(models.Device)).all()
 
 
 def create_device(db: Session, device: schemas.DeviceCreate):
@@ -25,15 +28,15 @@ def create_device(db: Session, device: schemas.DeviceCreate):
     db.commit()
     db.refresh(db_device)
     # Initial status log
-    log = models.DeviceStatusLog(
-        device_id=db_device.device_id,
-        from_status=None,
-        to_status=initial_status,
-        note="Initial device creation"
-    )
+    # log = models.DeviceStatusLog(
+    #     device_id=db_device.device_id,
+    #     from_status=None,
+    #     to_status=initial_status,
+    #     note="Initial device creation"
+    # )
 
-    db.add(log)
-    db.commit()
+    # db.add(log)
+    # db.commit()
 
     return db_device
 
@@ -59,10 +62,14 @@ def update_device(db: Session, device_id: int, device: schemas.DeviceUpdate):
 
 
 def delete_device(db: Session, device_id: int, changed_by: str | None = None):
+    payload = schemas.StatusChangeRequest(
+        to_status="retired",
+        changed_by=changed_by,
+        note="Device retired"
+    )
+
     return change_device_status(
             db=db,
             device_id=device_id,
-            new_status="decommissioned",
-            changed_by=changed_by,
-            note="Device decommissioned"
+            payload=payload
         )
