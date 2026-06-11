@@ -30,12 +30,13 @@ services:
       - database
     volumes:
       - ./backend:/app
+      - ./scripts:/app/scripts
     ports:
       - "8000:8000" # HTTP Port
       - "5678:5678" # Debug Port
     environment:
       - PYTHONUNBUFFERED=1
-    command: app/scripts/start-dev.sh
+    command: scripts/start-dev.sh
   frontend:
     build: ./frontend
     volumes:
