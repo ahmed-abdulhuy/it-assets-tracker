@@ -1,11 +1,10 @@
 from logging.config import fileConfig
 
-from sqlalchemy import create_engine
+from sqlmodel import create_engine, SQLModel
 from sqlalchemy.pool import NullPool
 
 
 from alembic import context
-from sqlmodel import SQLModel
 from app.models import *
 from app.env_settings import ENV_VARS
 
@@ -49,7 +48,7 @@ def run_migrations_offline() -> None:
     """
 
     print("\n\n Running migrations in offline mode with DATABASE_URL:", DATABASE_URL)
-    url = config.get_main_option(DATABASE_URL)
+    url = DATABASE_URL
 
     context.configure(
         url=url,
