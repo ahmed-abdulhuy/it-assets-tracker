@@ -9,12 +9,12 @@ from typing import List
 
 router = APIRouter(prefix="/devices", tags=["Devices"])
 
-
+# Add device
 @router.post("/", response_model=schemas.DeviceOut, status_code=status.HTTP_201_CREATED)
 def create_device(device: schemas.DeviceCreate, db: Session = Depends(get_db)):
     return crud_device.create_device(db, device)
 
-
+# Get all devices
 @router.get("/", response_model=list[schemas.DeviceOut])
 def read_devices(db: Session = Depends(get_db)):
     return crud_device.get_devices(db)
