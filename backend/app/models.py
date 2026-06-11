@@ -199,7 +199,7 @@ class DeviceStatusLog(SQLModel, table=True):
     )
 
     from_status: Optional[str] = Field(
-        default=None,
+        default="available",
         foreign_key="device_statuses.status"
     )
 

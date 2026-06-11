@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
+from sqlmodel import SQLModel
 from typing import Optional
 from datetime import datetime
 
@@ -7,7 +8,7 @@ from datetime import datetime
 # Employee Schemas
 # =====================================================
 
-class EmployeeBase(BaseModel):
+class EmployeeBase(SQLModel):
     first_name: str
     last_name: str
     email: Optional[EmailStr] = None
@@ -19,7 +20,7 @@ class EmployeeCreate(EmployeeBase):
     """Used when creating a new employee (POST)."""
     pass
 
-class EmployeeUpdate(BaseModel):
+class EmployeeUpdate(SQLModel):
     """Used when updating an employee (PATCH). All fields optional."""
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -34,15 +35,13 @@ class EmployeeOut(EmployeeBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
-
+    model_config = ConfigDict(from_attributes=True)
 
 # =====================================================
 # Device Schemas
 # =====================================================
 
-class DeviceBase(BaseModel):
+class DeviceBase(SQLModel):
     device_type: str
     model: Optional[str] = None
     specs: Optional[str] = None
@@ -54,7 +53,7 @@ class DeviceCreate(DeviceBase):
     pass
 
 
-class DeviceUpdate(BaseModel):
+class DeviceUpdate(SQLModel):
     """Used when updating a device (PATCH). All fields optional."""
     device_type: Optional[str] = None
     model: Optional[str] = None
@@ -68,15 +67,14 @@ class DeviceOut(DeviceBase):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # =====================================================
 # Assignment Schemas
 # =====================================================
 
-class AssignmentBase(BaseModel):
+class AssignmentBase(SQLModel):
     device_id: int
     employee_id: int
     assigned_by: Optional[str] = None
@@ -87,7 +85,7 @@ class AssignmentCreate(AssignmentBase):
     pass
 
 
-class AssignmentReturn(BaseModel):
+class AssignmentReturn(SQLModel):
     """Used when marking a device as returned (PATCH)."""
     returned_at: Optional[datetime] = None  # Defaults to now if not provided
 
@@ -98,8 +96,7 @@ class AssignmentOut(AssignmentBase):
     assigned_at: datetime
     returned_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class AssignmentOutDetailed(AssignmentOut):
@@ -107,15 +104,14 @@ class AssignmentOutDetailed(AssignmentOut):
     employee: EmployeeOut
     device: DeviceOut
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # =====================================================
 # History Schemas
 # =====================================================
  
-class DeviceHistoryEntry(BaseModel):
+class DeviceHistoryEntry(SQLModel):
     """One entry in a device's assignment history."""
     assignment_id: int
     employee: EmployeeOut
@@ -123,11 +119,10 @@ class DeviceHistoryEntry(BaseModel):
     returned_at: Optional[datetime] = None
     assigned_by: Optional[str] = None
  
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
  
  
-class EmployeeHistoryEntry(BaseModel):
+class EmployeeHistoryEntry(SQLModel):
     """One entry in an employee's assignment history."""
     assignment_id: int
     device: DeviceOut
@@ -135,26 +130,25 @@ class EmployeeHistoryEntry(BaseModel):
     returned_at: Optional[datetime] = None
     assigned_by: Optional[str] = None
  
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
 
 
 # =====================================================
 # Status Schemas
 # =====================================================
  
-class DeviceStatusOut(BaseModel):
+class DeviceStatusOut(SQLModel):
     status:      str
     label:       str
     color:       str
     description: Optional[str] = None
     is_terminal: bool
  
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
  
  
-class DeviceStatusTransitionOut(BaseModel):
+class DeviceStatusTransitionOut(SQLModel):
     from_status:     str
     to_status:       str
     label:           Optional[str] = None
@@ -162,24 +156,22 @@ class DeviceStatusTransitionOut(BaseModel):
     requires_return: bool
     to_status_obj:   DeviceStatusOut  # includes color + label of the target status
  
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
  
  
-class StatusChangeRequest(BaseModel):
+class StatusChangeRequest(SQLModel):
     to_status:  str
     changed_by: Optional[str] = None
     note:       Optional[str] = None
  
 
-class DeviceStatusLogOut(BaseModel):
+class DeviceStatusLogOut(SQLModel):
     log_id:      int
-    device_id: int
+    device_id:   int
     from_status: Optional[str] = None
     to_status:   str
     changed_by:  Optional[str] = None
     note:        Optional[str] = None
     changed_at:  datetime
  
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
