@@ -2,12 +2,12 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
-from app.database import get_db
+from app.database import get_db, engine
 from app.main import app
 
 
 @pytest.fixture
-def session(engine):
+def session():
 
     connection = engine.connect()
     transaction = connection.begin()
